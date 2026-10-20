@@ -75,7 +75,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-
+    
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Admin\UserController::updateStatus
@@ -105,7 +105,7 @@ updateStatus.url = (args: { user: number | { id: number } } | [user: number | { 
             if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
             args = { user: args.id }
         }
-
+    
     if (Array.isArray(args)) {
         args = {
                     user: args[0],
@@ -164,7 +164,7 @@ updateStatus.patch = (args: { user: number | { id: number } } | [user: number | 
                     }),
             method: 'post',
         })
-
+    
     updateStatus.form = updateStatusForm
 const UserController = { index, updateStatus }
 

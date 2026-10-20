@@ -28,7 +28,7 @@ class CategoryController extends Controller
     public function store(StoreCategoryRequest $request): RedirectResponse
     {
         Category::query()->create($request->validated());
-        Cache::forget('marketplace.home');
+        Cache::forget('marketplace.home.v2');
 
         return back()->with('success', 'Kategori berhasil ditambahkan.');
     }
@@ -36,7 +36,7 @@ class CategoryController extends Controller
     public function update(UpdateCategoryRequest $request, Category $category): RedirectResponse
     {
         $category->update($request->validated());
-        Cache::forget('marketplace.home');
+        Cache::forget('marketplace.home.v2');
 
         return back()->with('success', 'Kategori berhasil diperbarui.');
     }
@@ -52,7 +52,7 @@ class CategoryController extends Controller
         }
 
         $category->delete();
-        Cache::forget('marketplace.home');
+        Cache::forget('marketplace.home.v2');
 
         return back()->with('success', 'Kategori berhasil dihapus.');
     }

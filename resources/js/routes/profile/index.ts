@@ -208,7 +208,7 @@ show.query = (options?: RouteQueryOptions): RouteDefinition<'query'> => ({
                     }),
             method: 'post',
         })
-
+    
     show.form = showForm
 /**
 * @see \App\Http\Controllers\Settings\ProfileController::edit
@@ -286,7 +286,7 @@ edit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-
+    
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\Settings\ProfileController::update
@@ -351,7 +351,7 @@ update.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
                     }),
             method: 'post',
         })
-
+    
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\Settings\ProfileController::destroy
@@ -416,7 +416,7 @@ destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
                     }),
             method: 'post',
         })
-
+    
     destroy.form = destroyForm
 const profile = {
     show: Object.assign(show, show),

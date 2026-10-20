@@ -47,7 +47,7 @@ class VendorController extends Controller
     public function update(UpdateVendorRequest $request, VendorProfile $vendor): RedirectResponse
     {
         $vendor->update($request->validated());
-        Cache::forget('marketplace.home');
+        Cache::forget('marketplace.home.v2');
 
         return back()->with('success', 'Status vendor berhasil diperbarui.');
     }
@@ -83,7 +83,7 @@ class VendorController extends Controller
         }
 
         $service->update($attributes);
-        Cache::forget('marketplace.home');
+        Cache::forget('marketplace.home.v2');
 
         return back()->with('success', 'Status layanan berhasil diperbarui.');
     }

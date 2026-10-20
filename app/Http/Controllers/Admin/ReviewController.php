@@ -44,7 +44,7 @@ class ReviewController extends Controller
             $review->update($request->validated());
             $recalculateReviewRatings->handle($review);
         });
-        Cache::forget('marketplace.home');
+        Cache::forget('marketplace.home.v2');
 
         return back()->with('success', 'Visibilitas ulasan berhasil diperbarui.');
     }

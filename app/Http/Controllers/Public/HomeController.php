@@ -13,7 +13,7 @@ class HomeController extends Controller
 {
     public function __invoke(): Response
     {
-        $catalog = Cache::remember('marketplace.home', now()->addMinutes(10), function (): array {
+        $catalog = Cache::remember('marketplace.home.v2', now()->addMinutes(10), function (): array {
             $categories = Category::query()
                 ->where('is_active', true)
                 ->orderBy('sort_order')
@@ -47,9 +47,9 @@ class HomeController extends Controller
                 ->get();
 
             return [
-                'categories' => $categories,
-                'featuredServices' => $featuredServices,
-                'newestServices' => $newestServices,
+                'categories' => $categories->toArray(),
+                'featuredServices' => $featuredServices->toArray(),
+                'newestServices' => $newestServices->toArray(),
             ];
         });
 

@@ -75,7 +75,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-
+    
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Admin\CategoryController::store
@@ -130,7 +130,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
             action: store.url(options),
             method: 'post',
         })
-
+    
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\Admin\CategoryController::update
@@ -160,7 +160,7 @@ update.url = (args: { category: number | { id: number } } | [category: number | 
             if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
             args = { category: args.id }
         }
-
+    
     if (Array.isArray(args)) {
         args = {
                     category: args[0],
@@ -219,7 +219,7 @@ update.patch = (args: { category: number | { id: number } } | [category: number 
                     }),
             method: 'post',
         })
-
+    
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\Admin\CategoryController::destroy
@@ -249,7 +249,7 @@ destroy.url = (args: { category: number | { id: number } } | [category: number |
             if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
             args = { category: args.id }
         }
-
+    
     if (Array.isArray(args)) {
         args = {
                     category: args[0],
@@ -308,7 +308,7 @@ destroy.delete = (args: { category: number | { id: number } } | [category: numbe
                     }),
             method: 'post',
         })
-
+    
     destroy.form = destroyForm
 const CategoryController = { index, store, update, destroy }
 

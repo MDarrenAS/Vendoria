@@ -53,7 +53,7 @@ class UserController extends Controller
 
         if (! $user->is_active) {
             $user->vendorProfile?->update(['is_active' => false]);
-            Cache::forget('marketplace.home');
+            Cache::forget('marketplace.home.v2');
         }
 
         return back()->with('success', $user->is_active

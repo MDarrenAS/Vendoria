@@ -75,7 +75,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-
+    
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Admin\ReviewController::update
@@ -105,7 +105,7 @@ update.url = (args: { review: number | { id: number } } | [review: number | { id
             if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
             args = { review: args.id }
         }
-
+    
     if (Array.isArray(args)) {
         args = {
                     review: args[0],
@@ -164,7 +164,7 @@ update.patch = (args: { review: number | { id: number } } | [review: number | { 
                     }),
             method: 'post',
         })
-
+    
     update.form = updateForm
 const ReviewController = { index, update }
 

@@ -75,7 +75,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-
+    
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Admin\VendorController::update
@@ -105,7 +105,7 @@ update.url = (args: { vendor: string | { slug: string } } | [vendor: string | { 
             if (typeof args === 'object' && !Array.isArray(args) && 'slug' in args) {
             args = { vendor: args.slug }
         }
-
+    
     if (Array.isArray(args)) {
         args = {
                     vendor: args[0],
@@ -164,7 +164,7 @@ update.patch = (args: { vendor: string | { slug: string } } | [vendor: string | 
                     }),
             method: 'post',
         })
-
+    
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\Admin\VendorController::services
@@ -242,7 +242,7 @@ services.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-
+    
     services.form = servicesForm
 /**
 * @see \App\Http\Controllers\Admin\VendorController::updateServiceStatus
@@ -272,7 +272,7 @@ updateServiceStatus.url = (args: { service: string | { slug: string } } | [servi
             if (typeof args === 'object' && !Array.isArray(args) && 'slug' in args) {
             args = { service: args.slug }
         }
-
+    
     if (Array.isArray(args)) {
         args = {
                     service: args[0],
@@ -331,7 +331,7 @@ updateServiceStatus.patch = (args: { service: string | { slug: string } } | [ser
                     }),
             method: 'post',
         })
-
+    
     updateServiceStatus.form = updateServiceStatusForm
 const VendorController = { index, update, services, updateServiceStatus }
 

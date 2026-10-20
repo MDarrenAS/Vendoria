@@ -208,7 +208,7 @@ RedirectControlleraed0d18b6699640aa4d85cb0451e9ce2.query = (options?: RouteQuery
                     }),
             method: 'post',
         })
-
+    
     RedirectControlleraed0d18b6699640aa4d85cb0451e9ce2.form = RedirectControlleraed0d18b6699640aa4d85cb0451e9ce2Form
     /**
 * @see \Illuminate\Routing\RedirectController::__invoke
@@ -419,7 +419,7 @@ RedirectController4b87d2df7e3aa853f6720faea796e36c.query = (options?: RouteQuery
                     }),
             method: 'post',
         })
-
+    
     RedirectController4b87d2df7e3aa853f6720faea796e36c.form = RedirectController4b87d2df7e3aa853f6720faea796e36cForm
 
 /**

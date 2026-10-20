@@ -51,7 +51,7 @@ class RecordReview
 
             $this->recalculateReviewRatings->handle($review);
             $lockedOrder->vendorProfile->user->notify(new ReviewReceived($review));
-            Cache::forget('marketplace.home');
+            Cache::forget('marketplace.home.v2');
 
             return $review;
         });

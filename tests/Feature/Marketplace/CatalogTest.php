@@ -32,6 +32,14 @@ test('the public homepage displays active categories and verified services', fun
             ->where('categories.0.name', 'Dekorasi')
             ->where('featuredServices.0.slug', $featuredService->slug)
             ->has('newestServices', 1));
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('welcome')
+            ->has('categories', 1)
+            ->has('featuredServices', 1)
+            ->has('newestServices', 1));
 });
 
 test('vendor search applies keyword category city and availability filters', function () {
