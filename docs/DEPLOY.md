@@ -29,3 +29,5 @@ Laravel mengakses database secara langsung dari backend; frontend tidak mengguna
 6. Verifikasi `/up`, halaman katalog, login admin, upload S3, dan log deployment. Jangan menjalankan seeder contoh pada database produksi yang sudah memiliki data.
 
 Vercel menyediakan filesystem runtime yang tidak persisten. Storage aplikasi, cache bootstrap Laravel, dan hasil kompilasi view diarahkan ke `/tmp` lewat konfigurasi `vercel.json`. Route helper Wayfinder dibuat saat pengembangan dan disimpan dalam repository; build Vercel melewati generator agar tidak memerlukan PHP CLI pada tahap build Node.
+
+Aplikasi mempercayai header `X-Forwarded-Proto` dari proxy untuk menghasilkan URL HTTPS yang benar saat TLS dihentikan di edge Vercel. Ini mencegah browser memblokir CSS, JavaScript, dan font sebagai mixed content.
