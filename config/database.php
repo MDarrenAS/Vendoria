@@ -95,8 +95,11 @@ return [
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'search_path' => 'laravel',
+            'search_path' => env('DB_SCHEMA', 'public'),
             'sslmode' => 'require',
+            'options' => extension_loaded('pdo_pgsql') ? array_filter([
+                PDO::ATTR_EMULATE_PREPARES => env('DB_EMULATE_PREPARES', true),
+            ]) : [],
         ],
 
         'sqlsrv' => [

@@ -9,8 +9,11 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use RuntimeException;
 
 class ProfileController extends Controller
 {
@@ -30,13 +33,33 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $data = $request->safe()->except(['avatar', 'remove_avatar']);
+        $oldAvatarPath = $user->avatar_path;
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($request->hasFile('avatar')) {
+            $avatarPath = $request->file('avatar')->storePublicly('avatars/'.$user->id, 's3');
+
+            if (! is_string($avatarPath)) {
+                throw new RuntimeException('Foto profil gagal disimpan ke penyimpanan cloud.');
+            }
+
+            $data['avatar_path'] = $avatarPath;
+        } elseif ($request->boolean('remove_avatar')) {
+            $data['avatar_path'] = null;
         }
 
-        $request->user()->save();
+        $user->fill($data);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        if ($oldAvatarPath !== null && $user->avatar_path !== $oldAvatarPath) {
+            Storage::disk('s3')->delete($oldAvatarPath);
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);
 
@@ -49,10 +72,26 @@ class ProfileController extends Controller
     public function destroy(ProfileDeleteRequest $request): RedirectResponse
     {
         $user = $request->user();
+        $oldAvatarPath = $user->avatar_path;
 
         Auth::logout();
 
-        $user->delete();
+        $user->update([
+            'name' => 'Akun dihapus',
+            'email' => 'deleted-'.Str::uuid().'@example.invalid',
+            'email_verified_at' => null,
+            'password' => Str::random(64),
+            'phone' => null,
+            'avatar_path' => null,
+            'is_active' => false,
+        ]);
+
+        $user->vendorProfile?->services()->update(['is_active' => false]);
+        $user->vendorProfile?->update(['is_active' => false]);
+
+        if ($oldAvatarPath !== null) {
+            Storage::disk('s3')->delete($oldAvatarPath);
+        }
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

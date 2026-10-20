@@ -23,18 +23,23 @@ export default function Profile({
     status?: string;
 }) {
     const { auth } = usePage<PageProps>().props;
+    const user = auth.user;
+
+    if (user === null) {
+        return null;
+    }
 
     return (
         <>
-            <Head title="Profile settings" />
+            <Head title="Pengaturan profil" />
 
-            <h1 className="sr-only">Profile settings</h1>
+            <h1 className="sr-only">Pengaturan profil</h1>
 
             <div className="space-y-6">
                 <Heading
                     variant="small"
-                    title="Profile"
-                    description="Update your name and email address"
+                    title="Profil"
+                    description="Perbarui nama, email, nomor telepon, dan foto profil Anda."
                 />
 
                 <Form
@@ -47,16 +52,16 @@ export default function Profile({
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">Nama</Label>
 
                                 <Input
                                     id="name"
                                     className="mt-1 block w-full"
-                                    defaultValue={auth.user.name}
+                                    defaultValue={user.name}
                                     name="name"
                                     required
                                     autoComplete="name"
-                                    placeholder="Full name"
+                                    placeholder="Nama lengkap"
                                 />
 
                                 <InputError
@@ -66,17 +71,17 @@ export default function Profile({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">Alamat email</Label>
 
                                 <Input
                                     id="email"
                                     type="email"
                                     className="mt-1 block w-full"
-                                    defaultValue={auth.user.email}
+                                    defaultValue={user.email}
                                     name="email"
                                     required
                                     autoComplete="username"
-                                    placeholder="Email address"
+                                    placeholder="Alamat email"
                                 />
 
                                 <InputError
@@ -85,26 +90,57 @@ export default function Profile({
                                 />
                             </div>
 
+                            <div className="grid gap-2">
+                                <Label htmlFor="phone">Nomor WhatsApp</Label>
+                                <Input
+                                    id="phone"
+                                    type="tel"
+                                    name="phone"
+                                    defaultValue={user.phone ?? ''}
+                                    autoComplete="tel"
+                                    placeholder="08xxxxxxxxxx"
+                                />
+                                <InputError message={errors.phone} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="avatar">Foto profil (maksimal 2 MB)</Label>
+                                {user.avatar_url && (
+                                    <img src={user.avatar_url} alt="Foto profil saat ini" className="size-16 rounded-full object-cover" />
+                                )}
+                                <Input
+                                    id="avatar"
+                                    type="file"
+                                    name="avatar"
+                                    accept="image/jpeg,image/png,image/webp"
+                                />
+                                <InputError message={errors.avatar} />
+                                {user.avatar_url && (
+                                    <label className="flex items-center gap-2 text-sm">
+                                        <input type="checkbox" name="remove_avatar" value="1" />
+                                        Hapus foto profil
+                                    </label>
+                                )}
+                            </div>
+
                             {mustVerifyEmail &&
-                                auth.user.email_verified_at === null && (
+                                user.email_verified_at === null && (
                                     <div>
                                         <p className="-mt-4 text-sm text-muted-foreground">
-                                            Your email address is unverified.{' '}
+                                            Alamat email Anda belum diverifikasi.{' '}
                                             <Link
                                                 href={send()}
                                                 as="button"
                                                 className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                                             >
-                                                Click here to re-send the
-                                                verification email.
+                                                Kirim ulang email verifikasi.
                                             </Link>
                                         </p>
 
                                         {status ===
                                             'verification-link-sent' && (
                                             <div className="mt-2 text-sm font-medium text-green-600">
-                                                A new verification link has been
-                                                sent to your email address.
+                                                Tautan verifikasi baru telah dikirim ke email Anda.
                                             </div>
                                         )}
                                     </div>
@@ -115,7 +151,7 @@ export default function Profile({
                                     disabled={processing}
                                     data-test="update-profile-button"
                                 >
-                                    Save
+                                    Simpan perubahan
                                 </Button>
                             </div>
                         </>

@@ -1,0 +1,233 @@
+import { Form, Head, Link } from '@inertiajs/react';
+import { useState } from 'react';
+import VendorShell from '@/components/vendor-shell';
+import { index as servicesIndex, store, update } from '@/routes/vendor/services';
+import { formatRupiah, priceUnitLabel } from '@/types/marketplace';
+
+type Package = {
+    id: number;
+    name: string;
+    description: string | null;
+    price: string;
+    features: string[];
+    sort_order: number;
+    is_active: boolean;
+};
+
+type Image = {
+    id: number;
+    url: string | null;
+    is_cover: boolean;
+    sort_order: number;
+};
+
+type Service = {
+    id: number;
+    slug: string;
+    category_id: number;
+    name: string;
+    description: string;
+    base_price: string;
+    price_unit: string;
+    min_quantity: number;
+    max_quantity: number | null;
+    city_coverage: string | null;
+    terms: string | null;
+    is_active: boolean;
+    packages: Package[];
+    images: Image[];
+};
+
+type Category = { id: number; name: string };
+type PackageDraft = Package & { draftKey: string };
+
+export default function VendorServiceForm({
+    service,
+    categories,
+}: {
+    service: Service | null;
+    categories: Category[];
+}) {
+    const [packages, setPackages] = useState<PackageDraft[]>(
+        service?.packages.map((item) => ({ ...item, draftKey: `package-${item.id}` })) ?? [
+            { id: 0, name: '', description: null, price: '', features: [], sort_order: 0, is_active: true, draftKey: 'package-new-0' },
+        ],
+    );
+    const action = service ? update.form(service.slug) : store.form();
+
+    return (
+        <VendorShell title={service ? 'Ubah Layanan' : 'Tambah Layanan'}>
+            <Head title={service ? 'Ubah Layanan' : 'Tambah Layanan'} />
+            <main className="mx-auto max-w-4xl space-y-6">
+                <div>
+                    <Link href={servicesIndex()} className="text-sm text-primary hover:underline">Kembali ke daftar layanan</Link>
+                    <h2 className="mt-3 text-3xl font-semibold">{service ? 'Ubah Layanan' : 'Tambah Layanan'}</h2>
+                    <p className="mt-2 text-muted-foreground">Harga paket dikalikan jumlah yang diminta customer.</p>
+                </div>
+
+                <Form {...action} encType="multipart/form-data" className="grid gap-6 rounded-xl border bg-card p-6">
+                    {({ errors, processing }) => (
+                        <>
+                            <div className="grid gap-5 sm:grid-cols-2">
+                                <Field label="Nama layanan" name="name" defaultValue={service?.name ?? ''} error={errors.name} required />
+                                <label className="grid gap-2 text-sm font-medium">
+                                    Kategori
+                                    <select name="category_id" defaultValue={service?.category_id ?? ''} required className="h-10 rounded-md border bg-background px-3 font-normal">
+                                        <option value="" disabled>Pilih kategori</option>
+                                        {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+                                    </select>
+                                    <Error message={errors.category_id} />
+                                </label>
+                            </div>
+                            <TextArea label="Deskripsi" name="description" defaultValue={service?.description ?? ''} error={errors.description} required />
+                            <div className="grid gap-5 sm:grid-cols-3">
+                                <Field label="Harga dasar" name="base_price" type="number" defaultValue={service?.base_price ?? ''} error={errors.base_price} required min="0" step="0.01" />
+                                <label className="grid gap-2 text-sm font-medium">
+                                    Satuan harga
+                                    <select name="price_unit" defaultValue={service?.price_unit ?? 'per_event'} className="h-10 rounded-md border bg-background px-3 font-normal">
+                                        {['per_event', 'per_pax', 'per_day', 'per_hour', 'per_item'].map((unit) => <option key={unit} value={unit}>Per {priceUnitLabel(unit)}</option>)}
+                                    </select>
+                                    <Error message={errors.price_unit} />
+                                </label>
+                                <Field label="Kota/area layanan" name="city_coverage" defaultValue={service?.city_coverage ?? ''} error={errors.city_coverage} />
+                            </div>
+                            <div className="grid gap-5 sm:grid-cols-2">
+                                <Field label="Jumlah minimum" name="min_quantity" type="number" defaultValue={String(service?.min_quantity ?? 1)} error={errors.min_quantity} required min="1" />
+                                <Field label="Jumlah maksimum (opsional)" name="max_quantity" type="number" defaultValue={service?.max_quantity == null ? '' : String(service.max_quantity)} error={errors.max_quantity} min="1" />
+                            </div>
+                            <TextArea label="Syarat dan ketentuan" name="terms" defaultValue={service?.terms ?? ''} error={errors.terms} />
+
+                            <section className="grid gap-4 rounded-lg border p-4">
+                                <div className="flex items-center justify-between gap-4">
+                                    <div>
+                                        <h3 className="font-semibold">Paket layanan</h3>
+                                        <p className="text-sm text-muted-foreground">Minimal satu paket aktif dibutuhkan untuk mengaktifkan layanan.</p>
+                                    </div>
+                                    <button type="button" onClick={() => setPackages((current) => [...current, { id: 0, name: '', description: null, price: '', features: [], sort_order: current.length, is_active: true, draftKey: `package-new-${Date.now()}` }])} className="rounded-md border px-3 py-2 text-sm font-medium">Tambah paket</button>
+                                </div>
+                                {packages.map((servicePackage, index) => (
+                                    <fieldset key={servicePackage.draftKey} className="grid gap-4 rounded-lg bg-muted/30 p-4">
+                                        <legend className="px-1 text-sm font-medium">Paket {index + 1}</legend>
+                                        {servicePackage.id > 0 && <input type="hidden" name={`packages[${index}][id]`} value={servicePackage.id} />}
+                                        <div className="grid gap-4 sm:grid-cols-2">
+                                            <Field label="Nama paket" name={`packages[${index}][name]`} defaultValue={servicePackage.name} error={errors[`packages.${index}.name`]} required />
+                                            <Field label="Harga paket" name={`packages[${index}][price]`} type="number" defaultValue={servicePackage.price} error={errors[`packages.${index}.price`]} required min="0" step="0.01" />
+                                        </div>
+                                        <Field label="Deskripsi paket" name={`packages[${index}][description]`} defaultValue={servicePackage.description ?? ''} error={errors[`packages.${index}.description`]} />
+                                        <TextArea label="Fasilitas (satu baris per fasilitas)" name={`packages[${index}][features_text]`} defaultValue={servicePackage.features.join('\n')} error={errors[`packages.${index}.features_text`]} />
+                                        <input type="hidden" name={`packages[${index}][sort_order]`} value={index} />
+                                        <label className="flex items-center gap-2 text-sm">
+                                            <input type="checkbox" name={`packages[${index}][is_active]`} value="1" defaultChecked={servicePackage.is_active} />
+                                            Paket aktif
+                                        </label>
+                                        {packages.length > 1 && <button type="button" onClick={() => setPackages((current) => current.filter(({ draftKey }) => draftKey !== servicePackage.draftKey))} className="justify-self-start text-sm text-destructive hover:underline">Hapus paket dari layanan</button>}
+                                    </fieldset>
+                                ))}
+                                <Error message={errors.packages} />
+                            </section>
+
+                            <section className="grid gap-4 rounded-lg border p-4">
+                                <div>
+                                    <h3 className="font-semibold">Foto layanan</h3>
+                                    <p className="text-sm text-muted-foreground">Maksimal 8 foto, JPG/PNG/WebP, maksimal 2 MB per foto.</p>
+                                </div>
+                                {service?.images.map((image) => (
+                                    <div key={image.id} className="flex flex-wrap items-center gap-3 rounded-md bg-muted/30 p-3">
+                                        {image.url && <img src={image.url} alt="Foto layanan saat ini" className="size-16 rounded object-cover" />}
+                                        <label className="flex items-center gap-2 text-sm">
+                                            <input type="radio" name="cover_image_id" value={image.id} defaultChecked={image.is_cover} />
+                                            Gunakan sebagai cover
+                                        </label>
+                                        <label className="ml-auto flex items-center gap-2 text-sm text-destructive">
+                                            <input type="checkbox" name="delete_image_ids[]" value={image.id} />
+                                            Hapus foto
+                                        </label>
+                                    </div>
+                                ))}
+                                <label className="grid gap-2 text-sm font-medium">
+                                    Tambah foto
+                                    <input type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple className="font-normal" />
+                                    <Error message={errors.images} />
+                                </label>
+                                <label className="grid max-w-sm gap-2 text-sm font-medium">
+                                    Pilih foto baru sebagai cover
+                                    <select name="cover_image_index" defaultValue="" className="h-10 rounded-md border bg-background px-3 font-normal">
+                                        <option value="">Pertahankan cover saat ini / pilih otomatis</option>
+                                        {Array.from({ length: 8 }, (_, index) => <option key={index} value={index}>Foto baru ke-{index + 1}</option>)}
+                                    </select>
+                                    <Error message={errors.cover_image_index} />
+                                </label>
+                            </section>
+
+                            <label className="flex items-center gap-3 rounded-lg border p-4 text-sm">
+                                <input type="checkbox" name="is_active" value="1" defaultChecked={service?.is_active ?? false} />
+                                <span>
+                                    <strong className="block">Aktifkan layanan</strong>
+                                    <span className="text-muted-foreground">Layanan hanya dapat diaktifkan jika memiliki paket aktif dan foto cover.</span>
+                                </span>
+                            </label>
+
+                            {service && (
+                                <p className="text-sm text-muted-foreground">
+                                    Harga dasar saat ini: {formatRupiah(service.base_price)}.
+                                </p>
+                            )}
+                            <Error message={errors.service} />
+                            <button disabled={processing} className="h-11 rounded-md bg-primary px-4 font-semibold text-primary-foreground disabled:opacity-60">
+                                {processing ? 'Menyimpan...' : 'Simpan layanan'}
+                            </button>
+                        </>
+                    )}
+                </Form>
+            </main>
+        </VendorShell>
+    );
+}
+
+function Field({
+    label,
+    name,
+    defaultValue,
+    error,
+    required = false,
+    type = 'text',
+    min,
+    step,
+}: {
+    label: string;
+    name: string;
+    defaultValue: string;
+    error?: string;
+    required?: boolean;
+    type?: string;
+    min?: string;
+    step?: string;
+}) {
+    return (
+        <label className="grid gap-2 text-sm font-medium">
+            {label}
+            <input name={name} type={type} defaultValue={defaultValue} required={required} min={min} step={step} className="h-10 rounded-md border bg-background px-3 font-normal" />
+            <Error message={error} />
+        </label>
+    );
+}
+
+function TextArea({ label, name, defaultValue, error, required = false }: {
+    label: string;
+    name: string;
+    defaultValue: string;
+    error?: string;
+    required?: boolean;
+}) {
+    return (
+        <label className="grid gap-2 text-sm font-medium">
+            {label}
+            <textarea name={name} defaultValue={defaultValue} rows={4} required={required} className="rounded-md border bg-background p-3 font-normal" />
+            <Error message={error} />
+        </label>
+    );
+}
+
+function Error({ message }: { message?: string }) {
+    return message ? <span role="alert" className="text-sm font-normal text-destructive">{message}</span> : null;
+}

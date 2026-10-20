@@ -11,12 +11,30 @@ import { store } from '@/routes/register';
 
 type Props = {
     passwordRules: string;
+    draftOrderLocked: boolean;
+    draftOrderSummary?: {
+        service: string;
+        package: string | null;
+        event_date: string;
+    } | null;
 };
 
-export default function Register({ passwordRules }: Props) {
+export default function Register({ passwordRules, draftOrderLocked, draftOrderSummary }: Props) {
     return (
         <>
-            <Head title="Register" />
+            <Head title="Daftar" />
+            {draftOrderSummary && (
+                <aside className="mb-5 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
+                    <p className="font-semibold">Pesanan Anda belum hilang</p>
+                    <p className="mt-1 text-muted-foreground">
+                        {draftOrderSummary.service}
+                        {draftOrderSummary.package ? ` – ${draftOrderSummary.package}` : ''}
+                        {' – '}
+                        {new Intl.DateTimeFormat('id-ID', { dateStyle: 'long', timeZone: 'Asia/Jakarta' }).format(new Date(`${draftOrderSummary.event_date}T12:00:00`))}
+                    </p>
+                    {draftOrderLocked && <p className="mt-2">Pendaftaran dilanjutkan sebagai akun Panitia.</p>}
+                </aside>
+            )}
             <Form
                 {...store.form()}
                 resetOnSuccess={['password', 'password_confirmation']}
@@ -26,8 +44,27 @@ export default function Register({ passwordRules }: Props) {
                 {({ processing, errors }) => (
                     <>
                         <div className="grid gap-6">
+                            {draftOrderLocked ? (
+                                <input type="hidden" name="role" value="customer" />
+                            ) : (
+                                <div className="grid gap-2">
+                                    <Label htmlFor="role">Jenis akun</Label>
+                                    <select
+                                        id="role"
+                                        name="role"
+                                        required
+                                        defaultValue="customer"
+                                        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                                    >
+                                        <option value="customer">Saya Panitia / Pencari Vendor</option>
+                                        <option value="vendor">Saya Vendor</option>
+                                    </select>
+                                    <InputError message={errors.role} />
+                                </div>
+                            )}
+
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">Nama lengkap</Label>
                                 <Input
                                     id="name"
                                     type="text"
@@ -36,7 +73,7 @@ export default function Register({ passwordRules }: Props) {
                                     tabIndex={1}
                                     autoComplete="name"
                                     name="name"
-                                    placeholder="Full name"
+                                    placeholder="Nama lengkap"
                                 />
                                 <InputError
                                     message={errors.name}
@@ -45,7 +82,7 @@ export default function Register({ passwordRules }: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">Alamat email</Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -59,14 +96,14 @@ export default function Register({ passwordRules }: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password">Kata sandi</Label>
                                 <PasswordInput
                                     id="password"
                                     required
                                     tabIndex={3}
                                     autoComplete="new-password"
                                     name="password"
-                                    placeholder="Password"
+                                    placeholder="Kata sandi"
                                     passwordrules={passwordRules}
                                 />
                                 <InputError message={errors.password} />
@@ -74,7 +111,7 @@ export default function Register({ passwordRules }: Props) {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="password_confirmation">
-                                    Confirm password
+                                    Konfirmasi kata sandi
                                 </Label>
                                 <PasswordInput
                                     id="password_confirmation"
@@ -82,7 +119,7 @@ export default function Register({ passwordRules }: Props) {
                                     tabIndex={4}
                                     autoComplete="new-password"
                                     name="password_confirmation"
-                                    placeholder="Confirm password"
+                                    placeholder="Ulangi kata sandi"
                                     passwordrules={passwordRules}
                                 />
                                 <InputError
@@ -97,14 +134,14 @@ export default function Register({ passwordRules }: Props) {
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}
-                                Create account
+                                Buat akun
                             </Button>
                         </div>
 
                         <div className="text-center text-sm text-muted-foreground">
-                            Already have an account?{' '}
+                            Sudah punya akun?{' '}
                             <TextLink href={login()} tabIndex={6}>
-                                Log in
+                                Masuk
                             </TextLink>
                         </div>
                     </>
@@ -115,6 +152,6 @@ export default function Register({ passwordRules }: Props) {
 }
 
 Register.layout = {
-    title: 'Create an account',
-    description: 'Enter your details below to create your account',
+    title: 'Buat akun Vendoria',
+    description: 'Masukkan data Anda untuk membuat akun Vendoria.',
 };

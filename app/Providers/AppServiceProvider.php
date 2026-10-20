@@ -2,11 +2,17 @@
 
 namespace App\Providers;
 
+use App\Http\Responses\RoleBasedAuthResponse;
+use App\Http\Responses\RoleBasedVerifyEmailResponse;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Fortify\Contracts\LoginResponse;
+use Laravel\Fortify\Contracts\RegisterResponse;
+use Laravel\Fortify\Contracts\TwoFactorLoginResponse;
+use Laravel\Fortify\Contracts\VerifyEmailResponse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(LoginResponse::class, RoleBasedAuthResponse::class);
+        $this->app->singleton(RegisterResponse::class, RoleBasedAuthResponse::class);
+        $this->app->singleton(TwoFactorLoginResponse::class, RoleBasedAuthResponse::class);
+        $this->app->singleton(VerifyEmailResponse::class, RoleBasedVerifyEmailResponse::class);
     }
 
     /**
