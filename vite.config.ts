@@ -24,9 +24,13 @@ export default defineConfig({
             presets: [reactCompilerPreset()],
         }),
         tailwindcss(),
-        wayfinder({
-            formVariants: true,
-        }),
+        ...(process.env.VERCEL === '1'
+            ? []
+            : [
+                  wayfinder({
+                      formVariants: true,
+                  }),
+              ]),
     ]),
     server: {
         watch: {
@@ -66,8 +70,11 @@ export default defineConfig({
         ignorePatterns: [
             '.github/**',
             'composer.json',
+            'resources/js/actions/**',
             'resources/js/components/ui/*',
+            'resources/js/routes/**',
             'resources/views/mail/*',
+            'resources/js/wayfinder/**',
         ],
         sortTailwindcss: {
             functions: ['clsx', 'cn', 'cva'],
