@@ -105,6 +105,100 @@ test('vendor can create an active service with an active package and cover store
     Storage::disk('s3')->assertExists($service->images->first()->path);
 });
 
+test('vendor can replace the cover by uploading a new first photo', function () {
+    Storage::fake('s3');
+    $vendor = User::factory()->vendor()->create();
+    VendorProfile::factory()->for($vendor)->create();
+    $category = Category::factory()->create(['is_active' => true]);
+
+    $this->actingAs($vendor)
+        ->post(route('vendor.services.store'), vendorServicePayload($category, [
+            'images' => [
+                UploadedFile::fake()->image('cover-lama.jpg'),
+                UploadedFile::fake()->image('foto-tambahan.jpg'),
+            ],
+        ]))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $service = Service::query()->with(['packages', 'images'])->sole();
+    $oldCover = $service->images->firstWhere('is_cover', true);
+    $additionalImage = $service->images->firstWhere('is_cover', false);
+    $package = $service->packages->sole();
+
+    $this->actingAs($vendor)
+        ->patch(route('vendor.services.update', $service), vendorServicePayload($category, [
+            'packages' => [[
+                'id' => $package->id,
+                'name' => $package->name,
+                'description' => $package->description,
+                'price' => $package->price,
+                'features_text' => implode("\n", $package->features),
+                'sort_order' => $package->sort_order,
+                'is_active' => '1',
+            ]],
+            'images' => [UploadedFile::fake()->image('cover-baru.jpg')],
+            'cover_image_index' => 0,
+            'delete_image_ids' => [$oldCover->id],
+        ]))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $service->refresh()->load('images');
+
+    expect($service->images)->toHaveCount(2)
+        ->and($service->images->firstWhere('is_cover', true)?->id)->not->toBe($oldCover->id)
+        ->and($service->images->firstWhere('is_cover', false)?->id)->toBe($additionalImage->id);
+    Storage::disk('s3')->assertMissing($oldCover->path);
+    Storage::disk('s3')->assertExists($additionalImage->path);
+    Storage::disk('s3')->assertExists($service->images->firstWhere('is_cover', true)->path);
+});
+
+test('deleting the cover promotes the first remaining service photo', function () {
+    Storage::fake('s3');
+    $vendor = User::factory()->vendor()->create();
+    VendorProfile::factory()->for($vendor)->create();
+    $category = Category::factory()->create(['is_active' => true]);
+
+    $this->actingAs($vendor)
+        ->post(route('vendor.services.store'), vendorServicePayload($category, [
+            'images' => [
+                UploadedFile::fake()->image('cover.jpg'),
+                UploadedFile::fake()->image('foto-tambahan.jpg'),
+            ],
+        ]))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $service = Service::query()->with(['packages', 'images'])->sole();
+    $oldCover = $service->images->firstWhere('is_cover', true);
+    $remainingImage = $service->images->firstWhere('is_cover', false);
+    $package = $service->packages->sole();
+
+    $this->actingAs($vendor)
+        ->patch(route('vendor.services.update', $service), vendorServicePayload($category, [
+            'packages' => [[
+                'id' => $package->id,
+                'name' => $package->name,
+                'description' => $package->description,
+                'price' => $package->price,
+                'features_text' => implode("\n", $package->features),
+                'sort_order' => $package->sort_order,
+                'is_active' => '1',
+            ]],
+            'images' => [],
+            'cover_image_index' => null,
+            'delete_image_ids' => [$oldCover->id],
+        ]))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect($service->fresh()->images()->where('is_cover', true)->value('id'))->toBe($remainingImage->id)
+        ->and($service->images()->count())->toBe(1);
+    Storage::disk('s3')->assertMissing($oldCover->path);
+    Storage::disk('s3')->assertExists($remainingImage->path);
+});
+
 test('service cannot be activated without a package and a cover image', function () {
     $vendor = User::factory()->vendor()->create();
     VendorProfile::factory()->for($vendor)->create();

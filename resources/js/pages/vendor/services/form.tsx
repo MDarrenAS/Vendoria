@@ -53,7 +53,14 @@ export default function VendorServiceForm({
             { id: 0, name: '', description: null, price: '', features: [], sort_order: 0, is_active: true, draftKey: 'package-new-0' },
         ],
     );
+    const [selectedImages, setSelectedImages] = useState<File[]>([]);
+    const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
     const action = service ? update.form(service.slug) : store.form();
+    const currentCover = service?.images.find((image) => image.is_cover);
+    const imageIdsToDelete = Array.from(new Set([
+        ...deletedImageIds,
+        ...(selectedImages.length > 0 && currentCover ? [currentCover.id] : []),
+    ]));
 
     return (
         <VendorShell title={service ? 'Ubah Layanan' : 'Tambah Layanan'}>
@@ -131,30 +138,57 @@ export default function VendorServiceForm({
                                     <h3 className="font-semibold">Foto layanan</h3>
                                     <p className="text-sm text-muted-foreground">Maksimal 8 foto, JPG/PNG/WebP, maksimal 2 MB per foto.</p>
                                 </div>
-                                {service?.images.map((image) => (
-                                    <div key={image.id} className="flex flex-wrap items-center gap-3 rounded-md bg-muted/30 p-3">
-                                        {image.url && <img src={image.url} alt="Foto layanan saat ini" className="size-16 rounded object-cover" />}
-                                        <label className="flex items-center gap-2 text-sm">
-                                            <input type="radio" name="cover_image_id" value={image.id} defaultChecked={image.is_cover} />
-                                            Gunakan sebagai cover
-                                        </label>
-                                        <label className="ml-auto flex items-center gap-2 text-sm text-destructive">
-                                            <input type="checkbox" name="delete_image_ids[]" value={image.id} />
-                                            Hapus foto
-                                        </label>
+                                {currentCover && !deletedImageIds.includes(currentCover.id) && (
+                                    <div className="flex items-center gap-4 rounded-md bg-muted/30 p-3">
+                                        {currentCover.url && <img src={currentCover.url} alt="Foto cover saat ini" className="size-20 rounded-md object-cover" />}
+                                        <div>
+                                            <p className="font-medium">Cover saat ini</p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {selectedImages.length > 0 ? 'Cover ini akan diganti saat disimpan.' : 'Pilih foto baru di bawah untuk menggantinya.'}
+                                            </p>
+                                        </div>
                                     </div>
-                                ))}
+                                )}
+                                {service?.images.filter((image) => !image.is_cover).map((image) => {
+                                    const isDeleted = deletedImageIds.includes(image.id);
+
+                                    return (
+                                        <div key={image.id} className="flex items-center gap-3 rounded-md bg-muted/30 p-3">
+                                            {image.url && <img src={image.url} alt="Foto tambahan layanan" className="size-16 rounded object-cover" />}
+                                            <span className="flex-1 text-sm">{isDeleted ? 'Foto akan dihapus saat disimpan.' : 'Foto tambahan'}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => setDeletedImageIds((current) => (
+                                                    isDeleted ? current.filter((id) => id !== image.id) : [...current, image.id]
+                                                ))}
+                                                className="text-sm font-medium text-destructive hover:underline"
+                                            >
+                                                {isDeleted ? 'Batalkan' : 'Hapus'}
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                                {imageIdsToDelete.map((imageId) => <input key={imageId} type="hidden" name="delete_image_ids[]" value={imageId} />)}
+                                {selectedImages.length > 0 && <input type="hidden" name="cover_image_index" value="0" />}
                                 <label className="grid gap-2 text-sm font-medium">
-                                    Tambah foto
-                                    <input type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple className="font-normal" />
+                                    {currentCover ? 'Ganti atau tambah foto' : 'Pilih foto layanan'}
+                                    <input
+                                        type="file"
+                                        name="images[]"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        multiple
+                                        onChange={(event) => setSelectedImages(Array.from(event.currentTarget.files ?? []))}
+                                        className="font-normal"
+                                    />
+                                    <span className="font-normal text-muted-foreground">
+                                        Foto pertama yang dipilih otomatis menjadi cover. Foto berikutnya menjadi foto tambahan.
+                                    </span>
+                                    {selectedImages.length > 0 && (
+                                        <span className="font-normal text-muted-foreground">
+                                            {selectedImages.length} foto dipilih: {selectedImages.map((image) => image.name).join(', ')}
+                                        </span>
+                                    )}
                                     <Error message={errors.images} />
-                                </label>
-                                <label className="grid max-w-sm gap-2 text-sm font-medium">
-                                    Pilih foto baru sebagai cover
-                                    <select name="cover_image_index" defaultValue="" className="h-10 rounded-md border bg-background px-3 font-normal">
-                                        <option value="">Pertahankan cover saat ini / pilih otomatis</option>
-                                        {Array.from({ length: 8 }, (_, index) => <option key={index} value={index}>Foto baru ke-{index + 1}</option>)}
-                                    </select>
                                     <Error message={errors.cover_image_index} />
                                 </label>
                             </section>

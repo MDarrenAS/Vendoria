@@ -28,7 +28,7 @@ class SaveVendorService
         $newCoverIndex = isset($data['cover_image_index']) ? (int) $data['cover_image_index'] : null;
         $selectedCoverId = $coverImageId !== null && ! in_array($coverImageId, $deleteImageIds, true)
             ? $coverImageId
-            : $remainingImages->firstWhere('is_cover', true)?->id;
+            : ($remainingImages->firstWhere('is_cover', true)?->id ?? $remainingImages->first()?->id);
 
         if ($service === null && $newCoverIndex === null && count($uploadFiles) > 0) {
             $newCoverIndex = 0;
