@@ -56,8 +56,12 @@ export function AppSidebar() {
     const homeHref = mainNavItems[0].href;
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+        <Sidebar
+            collapsible="icon"
+            variant="inset"
+            className="border-r border-primary/10"
+        >
+            <SidebarHeader className="bg-gradient-to-b from-brand-50/70 to-sidebar dark:from-brand-950/30 dark:to-sidebar">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>

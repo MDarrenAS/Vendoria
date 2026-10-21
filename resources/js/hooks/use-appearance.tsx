@@ -11,6 +11,7 @@ export type UseAppearanceReturn = {
 
 const listeners = new Set<() => void>();
 let currentAppearance: Appearance = 'system';
+const appearanceDefaultVersionKey = 'appearance-default-light-v1';
 
 const prefersDark = (): boolean => {
     if (typeof window === 'undefined') {
@@ -75,9 +76,19 @@ export function initializeTheme(): void {
         return;
     }
 
-    if (!localStorage.getItem('appearance')) {
-        localStorage.setItem('appearance', 'system');
-        setCookie('appearance', 'system');
+    const storedAppearance = localStorage.getItem('appearance');
+
+    if (
+        !storedAppearance ||
+        (storedAppearance === 'system' &&
+            !localStorage.getItem(appearanceDefaultVersionKey))
+    ) {
+        localStorage.setItem('appearance', 'light');
+        setCookie('appearance', 'light');
+    }
+
+    if (!localStorage.getItem(appearanceDefaultVersionKey)) {
+        localStorage.setItem(appearanceDefaultVersionKey, '1');
     }
 
     currentAppearance = getStoredAppearance();

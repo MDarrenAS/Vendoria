@@ -38,7 +38,7 @@ type Props = {
 };
 
 const activeItemStyles =
-    'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
+    'bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary';
 
 export function AppHeader({ breadcrumbs = [] }: Props) {
     const page = usePage();
@@ -81,7 +81,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
 
     return (
         <>
-            <div className="border-b border-sidebar-border/80">
+            <div className="border-b border-primary/10 bg-card/85 shadow-sm backdrop-blur-xl">
                 <div className="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
                     {/* Mobile Menu */}
                     <div className="lg:hidden">
@@ -125,7 +125,6 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                                 </Link>
                                             ))}
                                         </div>
-
                                     </div>
                                 </div>
                             </SheetContent>
@@ -183,8 +182,11 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                             >
                                 <Bell className="size-5" />
                                 {page.props.unreadNotificationCount > 0 && (
-                                    <span className="absolute right-1 top-1 inline-flex min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] leading-4 text-destructive-foreground">
-                                        {page.props.unreadNotificationCount > 99 ? '99+' : page.props.unreadNotificationCount}
+                                    <span className="absolute top-1 right-1 inline-flex min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] leading-4 text-destructive-foreground">
+                                        {page.props.unreadNotificationCount > 99
+                                            ? '99+'
+                                            : page.props
+                                                  .unreadNotificationCount}
                                     </span>
                                 )}
                             </Link>
@@ -197,7 +199,10 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                 >
                                     <Avatar className="size-8 overflow-hidden rounded-full">
                                         <AvatarImage
-                                            src={auth.user?.avatar_url ?? undefined}
+                                            src={
+                                                auth.user?.avatar_url ??
+                                                undefined
+                                            }
                                             alt={auth.user?.name}
                                         />
                                         <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
