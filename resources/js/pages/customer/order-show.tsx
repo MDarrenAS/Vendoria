@@ -83,7 +83,7 @@ export default function CustomerOrderShow({
                             <div><dt className="text-muted-foreground">Layanan</dt><dd>{order.service_name_snapshot}</dd></div>
                             <div><dt className="text-muted-foreground">Paket</dt><dd>{order.package_name_snapshot ?? 'Harga dasar layanan'}</dd></div>
                             <div><dt className="text-muted-foreground">Nama acara</dt><dd>{order.event_name}</dd></div>
-                            <div><dt className="text-muted-foreground">Tanggal</dt><dd>{new Intl.DateTimeFormat('id-ID', { dateStyle: 'long', timeZone: 'Asia/Jakarta' }).format(new Date(`${order.event_date}T12:00:00`))}</dd></div>
+                            <div><dt className="text-muted-foreground">Tanggal</dt><dd>{new Intl.DateTimeFormat('id-ID', { dateStyle: 'long', timeZone: 'Asia/Jakarta' }).format(new Date(`${order.event_date.slice(0, 10)}T12:00:00`))}</dd></div>
                             <div><dt className="text-muted-foreground">Lokasi</dt><dd>{order.event_location}, {order.event_city}</dd></div>
                             <div><dt className="text-muted-foreground">Kontak</dt><dd>{order.contact_name} · {order.contact_phone}</dd></div>
                             {order.notes && <div><dt className="text-muted-foreground">Catatan</dt><dd className="whitespace-pre-line">{order.notes}</dd></div>}

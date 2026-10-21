@@ -83,7 +83,7 @@ export default function CustomerOrders({ orders, filters, statuses }: Props) {
                                     <p className="text-sm text-muted-foreground">{order.order_number}</p>
                                     <h2 className="mt-1 font-semibold">{order.service_name_snapshot}</h2>
                                     <p className="mt-1 text-sm text-muted-foreground">
-                                        {order.vendor_profile.business_name} · {new Intl.DateTimeFormat('id-ID', { dateStyle: 'long', timeZone: 'Asia/Jakarta' }).format(new Date(`${order.event_date}T12:00:00`))}
+                                        {order.vendor_profile.business_name} · {new Intl.DateTimeFormat('id-ID', { dateStyle: 'long', timeZone: 'Asia/Jakarta' }).format(new Date(`${order.event_date.slice(0, 10)}T12:00:00`))}
                                     </p>
                                 </div>
                                 <div className="sm:text-right">
