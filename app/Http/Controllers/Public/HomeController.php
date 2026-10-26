@@ -2,17 +2,24 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Service;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class HomeController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(Request $request): Response|RedirectResponse
     {
+        if ($request->user()?->role === UserRole::Vendor) {
+            return to_route('vendor.dashboard');
+        }
+
         $catalog = Cache::remember('marketplace.home.v2', now()->addMinutes(10), function (): array {
             $categories = Category::query()
                 ->where('is_active', true)

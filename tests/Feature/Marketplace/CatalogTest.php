@@ -42,6 +42,23 @@ test('the public homepage displays active categories and verified services', fun
             ->has('newestServices', 1));
 });
 
+test('services without an uploaded cover use a local event photo', function () {
+    Cache::flush();
+
+    $category = Category::factory()->create();
+    $vendor = VendorProfile::factory()->create();
+    Service::factory()
+        ->for($vendor)
+        ->for($category)
+        ->create(['is_active' => true]);
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('welcome')
+            ->where('newestServices.0.cover_url', asset('images/event-placeholder.jpg')));
+});
+
 test('vendor search applies keyword category city and availability filters', function () {
     $category = Category::factory()->create(['name' => 'Katering', 'slug' => 'katering']);
     $vendor = VendorProfile::factory()->create([

@@ -12,6 +12,7 @@ import { store } from '@/routes/register';
 type Props = {
     passwordRules: string;
     draftOrderLocked: boolean;
+    selectedRole: 'customer' | 'vendor';
     draftOrderSummary?: {
         service: string;
         package: string | null;
@@ -19,7 +20,12 @@ type Props = {
     } | null;
 };
 
-export default function Register({ passwordRules, draftOrderLocked, draftOrderSummary }: Props) {
+export default function Register({
+    passwordRules,
+    draftOrderLocked,
+    selectedRole,
+    draftOrderSummary,
+}: Props) {
     return (
         <>
             <Head title="Daftar" />
@@ -28,11 +34,24 @@ export default function Register({ passwordRules, draftOrderLocked, draftOrderSu
                     <p className="font-semibold">Pesanan Anda belum hilang</p>
                     <p className="mt-1 text-muted-foreground">
                         {draftOrderSummary.service}
-                        {draftOrderSummary.package ? ` – ${draftOrderSummary.package}` : ''}
+                        {draftOrderSummary.package
+                            ? ` – ${draftOrderSummary.package}`
+                            : ''}
                         {' – '}
-                        {new Intl.DateTimeFormat('id-ID', { dateStyle: 'long', timeZone: 'Asia/Jakarta' }).format(new Date(`${draftOrderSummary.event_date}T12:00:00`))}
+                        {new Intl.DateTimeFormat('id-ID', {
+                            dateStyle: 'long',
+                            timeZone: 'Asia/Jakarta',
+                        }).format(
+                            new Date(
+                                `${draftOrderSummary.event_date}T12:00:00`,
+                            ),
+                        )}
                     </p>
-                    {draftOrderLocked && <p className="mt-2">Pendaftaran dilanjutkan sebagai akun Panitia.</p>}
+                    {draftOrderLocked && (
+                        <p className="mt-2">
+                            Pendaftaran dilanjutkan sebagai akun Panitia.
+                        </p>
+                    )}
                 </aside>
             )}
             <Form
@@ -45,7 +64,11 @@ export default function Register({ passwordRules, draftOrderLocked, draftOrderSu
                     <>
                         <div className="grid gap-6">
                             {draftOrderLocked ? (
-                                <input type="hidden" name="role" value="customer" />
+                                <input
+                                    type="hidden"
+                                    name="role"
+                                    value="customer"
+                                />
                             ) : (
                                 <div className="grid gap-2">
                                     <Label htmlFor="role">Jenis akun</Label>
@@ -53,11 +76,15 @@ export default function Register({ passwordRules, draftOrderLocked, draftOrderSu
                                         id="role"
                                         name="role"
                                         required
-                                        defaultValue="customer"
-                                        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                                        defaultValue={selectedRole}
+                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                                     >
-                                        <option value="customer">Saya Panitia / Pencari Vendor</option>
-                                        <option value="vendor">Saya Vendor</option>
+                                        <option value="customer">
+                                            Saya Panitia / Pencari Vendor
+                                        </option>
+                                        <option value="vendor">
+                                            Saya Vendor
+                                        </option>
                                     </select>
                                     <InputError message={errors.role} />
                                 </div>

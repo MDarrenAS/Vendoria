@@ -58,7 +58,9 @@ export default function VendorShow({
             <main className="mx-auto max-w-7xl space-y-12 px-5 py-10">
                 <section className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-xl shadow-primary/5">
                     <img
-                        src={vendor.cover_url ?? '/images/VendoriaLogo.png'}
+                        src={
+                            vendor.cover_url ?? '/images/event-placeholder.jpg'
+                        }
                         alt={`Sampul ${vendor.business_name}`}
                         className="h-56 w-full bg-muted object-cover md:h-96"
                     />

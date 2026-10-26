@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
     $this->withoutVite();
@@ -63,6 +64,30 @@ test('admin can access the admin dashboard', function () {
     $this->actingAs($admin)
         ->get(route('admin.dashboard'))
         ->assertOk();
+});
+
+test('vendors are redirected from the storefront to their workspace', function () {
+    $vendor = User::factory()->vendor()->create();
+
+    $this->actingAs($vendor)
+        ->get(route('home'))
+        ->assertRedirect(route('vendor.dashboard', absolute: false));
+});
+
+test('admins can return to the public homepage', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->get(route('home'))
+        ->assertOk();
+});
+
+test('vendor registration entry preselects the vendor role', function () {
+    $this->get(route('register', ['role' => 'vendor']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('auth/register')
+            ->where('selectedRole', 'vendor'));
 });
 
 test('login redirects users to the dashboard for their role', function (string $role, string $destination) {

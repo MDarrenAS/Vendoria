@@ -1,12 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowUpRight, BadgeCheck, Search, Sparkles, Star } from 'lucide-react';
-import { dashboard as adminDashboard } from '@/routes/admin';
-import { dashboard as vendorDashboard } from '@/routes/vendor';
-import { login, logout, register } from '@/routes';
-import { index as ordersIndex } from '@/routes/orders';
+import { register } from '@/routes';
 import { index as vendorsIndex } from '@/routes/vendors';
-import { edit as profileEdit } from '@/routes/profile';
-import type { User } from '@/types';
 import type { Category, ServiceCard } from '@/types/marketplace';
 import { formatRupiah, priceUnitLabel } from '@/types/marketplace';
 
@@ -96,109 +91,11 @@ export default function Welcome({
     newestServices,
 }: WelcomeProps) {
     const { auth } = usePage().props;
-    const user = auth.user as User | null;
 
     return (
         <>
             <Head title="Temukan Vendor Acara" />
             <div className="min-h-screen bg-background text-foreground">
-                <header className="sticky top-0 z-40 border-b border-primary/10 bg-background/85 shadow-sm backdrop-blur-xl">
-                    <nav
-                        aria-label="Navigasi utama"
-                        className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-3"
-                    >
-                        <Link href="/" aria-label="Vendoria, beranda">
-                            <img
-                                src="/images/VendoriaLogo.png"
-                                alt="Vendoria"
-                                className="h-11 w-auto object-contain"
-                            />
-                        </Link>
-                        <div className="flex flex-wrap items-center gap-2 text-sm font-medium">
-                            <Link
-                                href="/"
-                                className="rounded-full bg-primary/10 px-3 py-2 text-primary"
-                            >
-                                Beranda
-                            </Link>
-                            <Link
-                                href={vendorsIndex()}
-                                className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                            >
-                                Cari Vendor
-                            </Link>
-                            <a
-                                href="#cara-kerja"
-                                className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                            >
-                                Cara Kerja
-                            </a>
-                            {user?.role === 'customer' && (
-                                <Link
-                                    href={ordersIndex()}
-                                    className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                                >
-                                    Pesanan Saya
-                                </Link>
-                            )}
-                            {user?.role === 'vendor' && (
-                                <Link
-                                    href={vendorDashboard()}
-                                    className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                                >
-                                    Dashboard Vendor
-                                </Link>
-                            )}
-                            {user?.role === 'admin' && (
-                                <Link
-                                    href={adminDashboard()}
-                                    className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                                >
-                                    Panel Admin
-                                </Link>
-                            )}
-                            {user ? (
-                                <>
-                                    <Link
-                                        href={profileEdit()}
-                                        className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                                    >
-                                        Profil
-                                    </Link>
-                                    <Link
-                                        href={logout()}
-                                        method="post"
-                                        as="button"
-                                        className="rounded-full border border-border/80 bg-card px-4 py-2 font-semibold shadow-sm transition hover:border-primary/30 hover:bg-primary/5"
-                                    >
-                                        Keluar
-                                    </Link>
-                                </>
-                            ) : (
-                                <>
-                                    <Link
-                                        href={login()}
-                                        className="hover:underline"
-                                    >
-                                        Masuk
-                                    </Link>
-                                    <Link
-                                        href={register()}
-                                        className="rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:-translate-y-0.5 hover:shadow-xl"
-                                    >
-                                        Daftar
-                                    </Link>
-                                </>
-                            )}
-                        </div>
-                    </nav>
-                    {user?.role === 'vendor' && (
-                        <p className="bg-danger-soft px-5 py-2 text-center text-sm font-medium text-danger-ink">
-                            Anda masuk sebagai Vendor.
-                        </p>
-                    )}
-                </header>
-
                 <main>
                     <section className="relative isolate overflow-hidden bg-gradient-to-br from-brand-950 via-brand-800 to-brand-700 text-white">
                         <span
@@ -456,9 +353,11 @@ export default function Welcome({
                                     orang merayakan momen mereka.
                                 </p>
                             </div>
-                            {!user && (
+                            {!auth.user && (
                                 <Link
-                                    href={register()}
+                                    href={register({
+                                        query: { role: 'vendor' },
+                                    })}
                                     className="relative inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 font-bold text-brand-800 shadow-lg transition hover:-translate-y-0.5 hover:bg-brand-50"
                                 >
                                     Gabung sebagai Vendor{' '}

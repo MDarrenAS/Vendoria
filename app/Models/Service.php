@@ -68,6 +68,6 @@ class Service extends Model
     {
         $coverPath = $this->images->firstWhere('is_cover', true)?->path;
 
-        return VendoriaMedia::url($coverPath) ?? asset('images/VendoriaLogo.png');
+        return VendoriaMedia::url($coverPath) ?? asset('images/event-placeholder.jpg');
     }
 }
