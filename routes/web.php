@@ -42,6 +42,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/orders/{order:order_number}', [OrderController::class, 'cancel'])
         ->middleware('role:customer')
         ->name('orders.cancel');
+    Route::post('/orders/{order:order_number}/payment', [OrderController::class, 'confirmPayment'])
+        ->middleware('role:customer')
+        ->name('orders.payment');
     Route::post('/orders/{order:order_number}/review', [CustomerReviewController::class, 'store'])
         ->middleware('role:customer')
         ->name('orders.review.store');

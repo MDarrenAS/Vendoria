@@ -43,4 +43,12 @@ class OrderPolicy
             && $order->customer_id === $user->id
             && $order->status === OrderStatus::Pending;
     }
+
+    public function pay(User $user, Order $order): bool
+    {
+        return $user->role === UserRole::Customer
+            && $order->customer_id === $user->id
+            && in_array($order->status, [OrderStatus::Confirmed, OrderStatus::InProgress], true)
+            && $order->price_final !== null;
+    }
 }

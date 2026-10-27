@@ -372,3 +372,29 @@ test('vendor can move a confirmed order through processing to completion', funct
         ->and($order->fresh()->completed_at)->not->toBeNull()
         ->and(OrderStatusHistory::query()->where('order_id', $order->id)->count())->toBe(2);
 });
+
+test('vendor can see the confirmed payment status on the order detail page', function () {
+    $vendor = User::factory()->vendor()->create();
+    $profile = VendorProfile::factory()->for($vendor)->create();
+    $service = Service::factory()->for($profile)->for(Category::factory())->create();
+    $order = Order::factory()
+        ->for(User::factory(), 'customer')
+        ->for($profile)
+        ->for($service)
+        ->create([
+            'status' => OrderStatus::Confirmed,
+            'price_final' => 700000,
+            'payment_status' => 'paid',
+            'paid_at' => now(),
+            'payment_method' => 'mandiri',
+        ]);
+
+    $this->actingAs($vendor)
+        ->get(route('vendor.orders.show', $order))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('vendor/orders/show')
+            ->where('order.payment_status', 'paid')
+            ->where('order.payment_method', 'mandiri')
+            ->where('order.paid_at', fn ($paidAt) => $paidAt !== null));
+});

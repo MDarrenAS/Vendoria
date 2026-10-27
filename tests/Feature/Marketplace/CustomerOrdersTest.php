@@ -64,6 +64,75 @@ test('customer can view order timeline and contact the vendor without exposing t
             ->where('whatsAppUrl', fn ($url) => str_starts_with($url, 'https://wa.me/628')));
 });
 
+test('customer payment confirmation is persisted separately from the order status', function () {
+    $customer = User::factory()->create();
+    [$order] = makeCustomerOrder($customer, OrderStatus::Confirmed);
+    $order->update(['price_final' => 750000]);
+
+    $this->actingAs($customer)
+        ->post(route('orders.payment', $order), ['payment_method' => 'bca'])
+        ->assertRedirect()
+        ->assertSessionHas('success', 'Pembayaran berhasil dikonfirmasi.');
+
+    $order->refresh();
+
+    expect($order->payment_status)->toBe('paid')
+        ->and($order->paid_at)->not->toBeNull()
+        ->and($order->payment_method)->toBe('bca')
+        ->and($order->status)->toBe(OrderStatus::Confirmed);
+
+    $paidAt = $order->paid_at;
+
+    $this->actingAs($customer)
+        ->post(route('orders.payment', $order), ['payment_method' => 'bca'])
+        ->assertRedirect();
+
+    expect($order->fresh()->paid_at)->toEqual($paidAt);
+
+    $this->actingAs($customer)
+        ->get(route('orders.show', $order))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('customer/order-show')
+            ->where('order.payment_method', 'bca'));
+});
+
+test('customer payment confirmation requires a supported bank', function () {
+    $customer = User::factory()->create();
+    [$order] = makeCustomerOrder($customer, OrderStatus::Confirmed);
+    $order->update(['price_final' => 750000]);
+
+    $this->actingAs($customer)
+        ->post(route('orders.payment', $order), ['payment_method' => 'unknown'])
+        ->assertSessionHasErrors('payment_method');
+
+    expect($order->fresh()->payment_status)->toBe('unpaid')
+        ->and($order->fresh()->payment_method)->toBeNull();
+});
+
+test('customer cannot confirm payment for another customer order', function () {
+    $customer = User::factory()->create();
+    [$anotherCustomersOrder] = makeCustomerOrder(User::factory()->create(), OrderStatus::Confirmed);
+    $anotherCustomersOrder->update(['price_final' => 750000]);
+
+    $this->actingAs($customer)
+        ->post(route('orders.payment', $anotherCustomersOrder))
+        ->assertForbidden();
+
+    expect($anotherCustomersOrder->fresh()->payment_status)->toBe('unpaid');
+});
+
+test('customer cannot confirm payment before vendor confirmation', function () {
+    $customer = User::factory()->create();
+    [$pendingOrder] = makeCustomerOrder($customer);
+
+    $this->actingAs($customer)
+        ->post(route('orders.payment', $pendingOrder))
+        ->assertForbidden();
+
+    expect($pendingOrder->fresh()->payment_status)->toBe('unpaid');
+});
+
 test('customer cannot view another customer order', function () {
     [$order] = makeCustomerOrder(User::factory()->create());
     $otherCustomer = User::factory()->create();

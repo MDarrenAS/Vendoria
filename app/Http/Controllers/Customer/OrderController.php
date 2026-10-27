@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Actions\Orders\ChangeOrderStatus;
+use App\Actions\Orders\ConfirmOrderPayment;
 use App\Actions\Orders\CreateOrder;
 use App\Enums\OrderStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\Customer\CancelOrderRequest;
+use App\Http\Requests\Customer\ConfirmOrderPaymentRequest;
 use App\Models\Order;
 use App\Support\WhatsApp;
 use Illuminate\Http\RedirectResponse;
@@ -93,6 +95,20 @@ class OrderController extends Controller
         );
 
         return back()->with('success', 'Pesanan berhasil dibatalkan.');
+    }
+
+    public function confirmPayment(
+        ConfirmOrderPaymentRequest $request,
+        Order $order,
+        ConfirmOrderPayment $confirmOrderPayment,
+    ): RedirectResponse {
+        $confirmOrderPayment->handle(
+            $order,
+            $request->user(),
+            $request->validated('payment_method'),
+        );
+
+        return back()->with('success', 'Pembayaran berhasil dikonfirmasi.');
     }
 
     public function store(CreateOrderRequest $request, CreateOrder $createOrder): RedirectResponse
