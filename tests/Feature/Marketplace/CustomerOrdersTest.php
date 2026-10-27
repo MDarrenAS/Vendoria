@@ -7,6 +7,7 @@ use App\Models\OrderStatusHistory;
 use App\Models\Service;
 use App\Models\User;
 use App\Models\VendorProfile;
+use App\Notifications\OrderPaymentConfirmed;
 use App\Notifications\OrderStatusChanged;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -130,8 +131,9 @@ test('customer cannot send a message after the order is closed', function () {
 
 test('customer payment confirmation is persisted separately from the order status', function () {
     $customer = User::factory()->create();
-    [$order] = makeCustomerOrder($customer, OrderStatus::Confirmed);
+    [$order, $vendorProfile] = makeCustomerOrder($customer, OrderStatus::Confirmed);
     $order->update(['price_final' => 750000]);
+    Notification::fake([OrderPaymentConfirmed::class]);
 
     $this->actingAs($customer)
         ->post(route('orders.payment', $order), ['payment_method' => 'bca'])
@@ -152,6 +154,18 @@ test('customer payment confirmation is persisted separately from the order statu
         ->assertRedirect();
 
     expect($order->fresh()->paid_at)->toEqual($paidAt);
+    Notification::assertSentToTimes($vendorProfile->user, OrderPaymentConfirmed::class);
+    Notification::assertSentTo(
+        $vendorProfile->user,
+        OrderPaymentConfirmed::class,
+        function (OrderPaymentConfirmed $notification) use ($order, $vendorProfile): bool {
+            $data = $notification->toDatabase($vendorProfile->user);
+
+            return $notification->order->is($order)
+                && $data['status'] === 'paid'
+                && $data['order_number'] === $order->order_number;
+        },
+    );
 
     $this->actingAs($customer)
         ->get(route('orders.show', $order))

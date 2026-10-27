@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { store as storeReview } from '@/actions/App/Http/Controllers/Customer/ReviewController';
 import OrderChat, { type OrderChatMessage } from '@/components/order-chat';
+import OrderLiveUpdates from '@/components/order-live-updates';
 import {
     index as ordersIndex,
     cancel as cancelOrder,
@@ -178,6 +179,11 @@ export default function CustomerOrderShow({
     return (
         <>
             <Head title={`Pesanan ${order.order_number}`} />
+            <OrderLiveUpdates
+                orderNumber={order.order_number}
+                orderStatus={order.status}
+                paymentStatus={order.payment_status}
+            />
             <main className="mx-auto max-w-[1080px] space-y-5 px-4 py-6 sm:px-6 lg:px-8">
                 <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-6">
                     <div>

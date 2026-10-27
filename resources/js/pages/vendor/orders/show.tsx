@@ -1,6 +1,7 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { CalendarDays, Clock3, MapPin, ShieldCheck } from 'lucide-react';
 import OrderChat, { type OrderChatMessage } from '@/components/order-chat';
+import OrderLiveUpdates from '@/components/order-live-updates';
 import VendorShell from '@/components/vendor-shell';
 import vendorOrders from '@/routes/vendor/orders';
 import { formatRupiah } from '@/types/marketplace';
@@ -66,6 +67,11 @@ export default function VendorOrderShow({
     return (
         <VendorShell title="Detail Pesanan">
             <Head title={`Pesanan ${order.order_number}`} />
+            <OrderLiveUpdates
+                orderNumber={order.order_number}
+                orderStatus={order.status}
+                paymentStatus={order.payment_status}
+            />
             <main className="mx-auto max-w-[1200px] space-y-5">
                 <div className="flex flex-wrap items-end justify-between gap-4">
                     <div>
