@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Public\VendorController::show
- * @see app/Http/Controllers/Public/VendorController.php:13
+ * @see app/Http/Controllers/Public/VendorController.php:12
  * @route '/vendors/{vendor}'
  */
 export const show = (args: { vendor: string | { slug: string } } | [vendor: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Public\VendorController::show
- * @see app/Http/Controllers/Public/VendorController.php:13
+ * @see app/Http/Controllers/Public/VendorController.php:12
  * @route '/vendors/{vendor}'
  */
 show.url = (args: { vendor: string | { slug: string } } | [vendor: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -127,7 +127,7 @@ show.url = (args: { vendor: string | { slug: string } } | [vendor: string | { sl
 
 /**
 * @see \App\Http\Controllers\Public\VendorController::show
- * @see app/Http/Controllers/Public/VendorController.php:13
+ * @see app/Http/Controllers/Public/VendorController.php:12
  * @route '/vendors/{vendor}'
  */
 show.get = (args: { vendor: string | { slug: string } } | [vendor: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -136,7 +136,7 @@ show.get = (args: { vendor: string | { slug: string } } | [vendor: string | { sl
 })
 /**
 * @see \App\Http\Controllers\Public\VendorController::show
- * @see app/Http/Controllers/Public/VendorController.php:13
+ * @see app/Http/Controllers/Public/VendorController.php:12
  * @route '/vendors/{vendor}'
  */
 show.head = (args: { vendor: string | { slug: string } } | [vendor: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -146,7 +146,7 @@ show.head = (args: { vendor: string | { slug: string } } | [vendor: string | { s
 
     /**
 * @see \App\Http\Controllers\Public\VendorController::show
- * @see app/Http/Controllers/Public/VendorController.php:13
+ * @see app/Http/Controllers/Public/VendorController.php:12
  * @route '/vendors/{vendor}'
  */
     const showForm = (args: { vendor: string | { slug: string } } | [vendor: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -156,7 +156,7 @@ show.head = (args: { vendor: string | { slug: string } } | [vendor: string | { s
 
             /**
 * @see \App\Http\Controllers\Public\VendorController::show
- * @see app/Http/Controllers/Public/VendorController.php:13
+ * @see app/Http/Controllers/Public/VendorController.php:12
  * @route '/vendors/{vendor}'
  */
         showForm.get = (args: { vendor: string | { slug: string } } | [vendor: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -165,7 +165,7 @@ show.head = (args: { vendor: string | { slug: string } } | [vendor: string | { s
         })
             /**
 * @see \App\Http\Controllers\Public\VendorController::show
- * @see app/Http/Controllers/Public/VendorController.php:13
+ * @see app/Http/Controllers/Public/VendorController.php:12
  * @route '/vendors/{vendor}'
  */
         showForm.head = (args: { vendor: string | { slug: string } } | [vendor: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

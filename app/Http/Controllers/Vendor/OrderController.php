@@ -7,7 +7,7 @@ use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\ChangeOrderStatusRequest;
 use App\Models\Order;
-use App\Support\WhatsApp;
+use App\Models\OrderMessage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -51,7 +51,7 @@ class OrderController extends Controller
     public function show(Order $order): Response
     {
         Gate::authorize('view', $order);
-        $order->load(['customer:id,name', 'vendorProfile:id,business_name,whatsapp_number', 'statusHistories.changedBy:id,name']);
+        $order->load(['customer:id,name', 'vendorProfile:id,business_name', 'statusHistories.changedBy:id,name']);
 
         $dateConflict = Order::query()
             ->where('vendor_profile_id', $order->vendor_profile_id)
@@ -60,26 +60,38 @@ class OrderController extends Controller
             ->where('id', '!=', $order->id)
             ->exists();
 
-        $customerPhone = WhatsApp::normalize($order->contact_phone);
-        $whatsAppUrl = $customerPhone === null
-            ? null
-            : WhatsApp::link($customerPhone, sprintf(
-                'Halo %s, saya dari %s terkait pesanan %s (%s, %s) di Vendoria. Terima kasih.',
-                $order->contact_name,
-                $order->vendorProfile->business_name,
-                $order->order_number,
-                $order->service_name_snapshot,
-                $order->event_date->translatedFormat('d F Y'),
-            ));
+        $initialMessages = $order->messages()
+            ->with('sender:id,name')
+            ->orderByDesc('id')
+            ->limit(50)
+            ->get()
+            ->reverse()
+            ->values()
+            ->map(fn (OrderMessage $message): array => [
+                'id' => $message->id,
+                'body' => $message->body,
+                'created_at' => $message->created_at->toIso8601String(),
+                'sender_id' => $message->sender_id,
+                'sender_name' => $message->sender->name,
+            ]);
 
         $order->makeHidden(['id', 'idempotency_key', 'customer_id', 'vendor_profile_id', 'service_id', 'package_id']);
+        if ($order->payment_status !== 'paid') {
+            $order->makeHidden('contact_phone');
+        }
         $order->vendorProfile->makeHidden(['id', 'whatsapp_number']);
         $order->statusHistories->each(fn ($history) => $history->makeHidden(['order_id', 'changed_by']));
 
         return Inertia::render('vendor/orders/show', [
             'order' => $order,
             'dateConflict' => $dateConflict,
-            'whatsAppUrl' => $whatsAppUrl,
+            'initialMessages' => $initialMessages,
+            'currentUserId' => auth()->id(),
+            'canSendMessages' => ! in_array($order->status, [
+                OrderStatus::Completed,
+                OrderStatus::Rejected,
+                OrderStatus::Cancelled,
+            ], true),
             'statuses' => array_map(
                 fn (OrderStatus $status): array => ['value' => $status->value, 'label' => $status->label()],
                 OrderStatus::cases(),

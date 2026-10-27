@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Public\ServiceController::show
- * @see app/Http/Controllers/Public/ServiceController.php:13
+ * @see app/Http/Controllers/Public/ServiceController.php:12
  * @route '/services/{service}'
  */
 export const show = (args: { service: string | { slug: string } } | [service: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Public\ServiceController::show
- * @see app/Http/Controllers/Public/ServiceController.php:13
+ * @see app/Http/Controllers/Public/ServiceController.php:12
  * @route '/services/{service}'
  */
 show.url = (args: { service: string | { slug: string } } | [service: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ show.url = (args: { service: string | { slug: string } } | [service: string | { 
 
 /**
 * @see \App\Http\Controllers\Public\ServiceController::show
- * @see app/Http/Controllers/Public/ServiceController.php:13
+ * @see app/Http/Controllers/Public/ServiceController.php:12
  * @route '/services/{service}'
  */
 show.get = (args: { service: string | { slug: string } } | [service: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -58,7 +58,7 @@ show.get = (args: { service: string | { slug: string } } | [service: string | { 
 })
 /**
 * @see \App\Http\Controllers\Public\ServiceController::show
- * @see app/Http/Controllers/Public/ServiceController.php:13
+ * @see app/Http/Controllers/Public/ServiceController.php:12
  * @route '/services/{service}'
  */
 show.head = (args: { service: string | { slug: string } } | [service: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -68,7 +68,7 @@ show.head = (args: { service: string | { slug: string } } | [service: string | {
 
     /**
 * @see \App\Http\Controllers\Public\ServiceController::show
- * @see app/Http/Controllers/Public/ServiceController.php:13
+ * @see app/Http/Controllers/Public/ServiceController.php:12
  * @route '/services/{service}'
  */
     const showForm = (args: { service: string | { slug: string } } | [service: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -78,7 +78,7 @@ show.head = (args: { service: string | { slug: string } } | [service: string | {
 
             /**
 * @see \App\Http\Controllers\Public\ServiceController::show
- * @see app/Http/Controllers/Public/ServiceController.php:13
+ * @see app/Http/Controllers/Public/ServiceController.php:12
  * @route '/services/{service}'
  */
         showForm.get = (args: { service: string | { slug: string } } | [service: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -87,7 +87,7 @@ show.head = (args: { service: string | { slug: string } } | [service: string | {
         })
             /**
 * @see \App\Http\Controllers\Public\ServiceController::show
- * @see app/Http/Controllers/Public/ServiceController.php:13
+ * @see app/Http/Controllers/Public/ServiceController.php:12
  * @route '/services/{service}'
  */
         showForm.head = (args: { service: string | { slug: string } } | [service: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

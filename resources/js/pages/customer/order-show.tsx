@@ -14,6 +14,7 @@ import {
     X,
 } from 'lucide-react';
 import { store as storeReview } from '@/actions/App/Http/Controllers/Customer/ReviewController';
+import OrderChat, { type OrderChatMessage } from '@/components/order-chat';
 import {
     index as ordersIndex,
     cancel as cancelOrder,
@@ -110,10 +111,14 @@ const statusLabels: Record<string, string> = {
 
 export default function CustomerOrderShow({
     order,
-    whatsAppUrl,
+    initialMessages,
+    currentUserId,
+    canSendMessages,
 }: {
     order: Order;
-    whatsAppUrl: string | null;
+    initialMessages: OrderChatMessage[];
+    currentUserId: number;
+    canSendMessages: boolean;
 }) {
     const form = useForm({ cancel_reason: '' });
     const paymentForm = useForm({
@@ -326,16 +331,6 @@ export default function CustomerOrderShow({
                                 </div>
                             )}
                         </dl>
-                        {whatsAppUrl && (
-                            <a
-                                href={whatsAppUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.98]"
-                            >
-                                Hubungi Vendor via WhatsApp
-                            </a>
-                        )}
                         {order.status === 'pending' && (
                             <form
                                 onSubmit={cancel}
@@ -380,6 +375,14 @@ export default function CustomerOrderShow({
                         )}
                     </div>
                 </section>
+
+                <OrderChat
+                    orderNumber={order.order_number}
+                    initialMessages={initialMessages}
+                    currentUserId={currentUserId}
+                    counterpartName={order.vendor_profile.business_name}
+                    canSend={canSendMessages}
+                />
 
                 <section className="rounded-2xl border border-blue-200 bg-card p-5 shadow-sm sm:p-6">
                     <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border/70 pb-4">

@@ -49,7 +49,7 @@ test('customer order list only includes their own paginated orders', function ()
     expect($anotherOrder->customer_id)->not->toBe($customer->id);
 });
 
-test('customer can view order timeline and contact the vendor without exposing the raw vendor phone', function () {
+test('customer can view order timeline and use the order chat without exposing the vendor phone', function () {
     $customer = User::factory()->create();
     [$order] = makeCustomerOrder($customer);
     OrderStatusHistory::factory()->for($order)->for($customer, 'changedBy')->create();
@@ -61,7 +61,71 @@ test('customer can view order timeline and contact the vendor without exposing t
             ->component('customer/order-show')
             ->where('order.order_number', $order->order_number)
             ->has('order.status_histories', 1)
-            ->where('whatsAppUrl', fn ($url) => str_starts_with($url, 'https://wa.me/628')));
+            ->where('currentUserId', $customer->id)
+            ->has('initialMessages', 0)
+            ->missing('whatsAppUrl')
+            ->missing('order.vendor_profile.whatsapp_number'));
+});
+
+test('customer can send a message and the vendor can retrieve it from the order chat', function () {
+    $customer = User::factory()->create();
+    [$order] = makeCustomerOrder($customer);
+
+    $this->actingAs($customer)
+        ->post(route('orders.messages.store', $order), [
+            'body' => 'Apakah paket ini tersedia untuk acara keluarga?',
+        ])
+        ->assertRedirect();
+
+    $this->actingAs($order->vendorProfile->user)
+        ->getJson(route('orders.messages.index', $order))
+        ->assertOk()
+        ->assertJsonPath('messages.0.body', 'Apakah paket ini tersedia untuk acara keluarga?')
+        ->assertJsonPath('messages.0.sender_id', $customer->id)
+        ->assertJsonPath('messages.0.sender_name', $customer->name);
+
+    $this->assertDatabaseHas('order_messages', [
+        'order_id' => $order->id,
+        'sender_id' => $customer->id,
+        'body' => 'Apakah paket ini tersedia untuk acara keluarga?',
+    ]);
+});
+
+test('customer cannot read or send messages on another customer order', function () {
+    [$order] = makeCustomerOrder(User::factory()->create());
+    $customer = User::factory()->create();
+
+    $this->actingAs($customer)
+        ->getJson(route('orders.messages.index', $order))
+        ->assertForbidden();
+
+    $this->actingAs($customer)
+        ->post(route('orders.messages.store', $order), ['body' => 'Pesan tidak sah'])
+        ->assertForbidden();
+
+    $this->assertDatabaseCount('order_messages', 0);
+});
+
+test('customer cannot send an empty order chat message', function () {
+    $customer = User::factory()->create();
+    [$order] = makeCustomerOrder($customer);
+
+    $this->actingAs($customer)
+        ->post(route('orders.messages.store', $order), ['body' => '   '])
+        ->assertSessionHasErrors('body');
+
+    $this->assertDatabaseCount('order_messages', 0);
+});
+
+test('customer cannot send a message after the order is closed', function () {
+    $customer = User::factory()->create();
+    [$order] = makeCustomerOrder($customer, OrderStatus::Cancelled);
+
+    $this->actingAs($customer)
+        ->post(route('orders.messages.store', $order), ['body' => 'Apakah masih bisa dilanjutkan?'])
+        ->assertForbidden();
+
+    $this->assertDatabaseCount('order_messages', 0);
 });
 
 test('customer payment confirmation is persisted separately from the order status', function () {

@@ -44,7 +44,6 @@ type ServiceDetail = {
 export default function ServiceShow({
     service,
     reviews,
-    whatsappUrl,
 }: {
     service: ServiceDetail;
     reviews: {
@@ -58,7 +57,6 @@ export default function ServiceShow({
         links: Array<{ url: string | null; label: string; active: boolean }>;
     };
     extraFields: Array<{ name: string; label: string; type: string }>;
-    whatsappUrl: string | null;
 }) {
     return (
         <>
@@ -165,16 +163,6 @@ export default function ServiceShow({
                             >
                                 Lihat paket
                             </a>
-                            {whatsappUrl && (
-                                <a
-                                    href={whatsappUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="rounded-full border border-primary/20 bg-card px-5 py-3 font-semibold text-primary transition hover:bg-primary/5"
-                                >
-                                    Tanya via WhatsApp
-                                </a>
-                            )}
                         </div>
                     </div>
                 </section>

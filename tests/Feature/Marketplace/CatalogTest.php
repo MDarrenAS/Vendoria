@@ -115,7 +115,7 @@ test('vendor and service details resolve by slug without exposing raw whatsapp n
         ->assertInertia(fn (Assert $page) => $page
             ->component('vendors/show')
             ->where('vendor.slug', $vendor->slug)
-            ->where('whatsappUrl', fn (string $url) => str_starts_with($url, 'https://wa.me/6281234567890'))
+            ->missing('whatsappUrl')
             ->missing('vendor.whatsapp_number'));
 
     $this->get(route('services.show', $service))
@@ -125,7 +125,7 @@ test('vendor and service details resolve by slug without exposing raw whatsapp n
             ->where('service.slug', $service->slug)
             ->where('service.packages.0.id', $service->packages->first()->id)
             ->missing('service.vendor_profile.whatsapp_number')
-            ->where('whatsappUrl', fn (string $url) => str_starts_with($url, 'https://wa.me/6281234567890')));
+            ->missing('whatsappUrl'));
 });
 
 test('inactive services and inactive vendors are not publicly discoverable', function () {

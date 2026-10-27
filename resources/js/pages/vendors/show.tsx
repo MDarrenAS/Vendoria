@@ -47,14 +47,12 @@ type Review = {
 export default function VendorShow({
     vendor,
     reviews,
-    whatsappUrl,
 }: {
     vendor: Vendor;
     reviews: {
         data: Review[];
         links: Array<{ url: string | null; label: string; active: boolean }>;
     };
-    whatsappUrl: string | null;
 }) {
     return (
         <>
@@ -106,16 +104,6 @@ export default function VendorShow({
                                     : 'Belum ada ulasan'}
                             </p>
                         </div>
-                        {whatsappUrl && (
-                            <a
-                                href={whatsappUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-600 active:scale-[0.98]"
-                            >
-                                Hubungi via WhatsApp
-                            </a>
-                        )}
                     </div>
                     <div
                         id="tentang"

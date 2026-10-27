@@ -21,6 +21,12 @@ class OrderPolicy
             || ($user->role === UserRole::Vendor && $user->vendorProfile?->id === $order->vendor_profile_id);
     }
 
+    public function chat(User $user, Order $order): bool
+    {
+        return ($user->role === UserRole::Customer && $order->customer_id === $user->id)
+            || ($user->role === UserRole::Vendor && $user->vendorProfile?->id === $order->vendor_profile_id);
+    }
+
     public function create(User $user): bool
     {
         return $user->role === UserRole::Customer;

@@ -181,7 +181,7 @@ show.head = (args: { order: string | { order_number: string } } | [order: string
     show.form = showForm
 /**
 * @see \App\Http\Controllers\Vendor\OrderController::status
- * @see app/Http/Controllers/Vendor/OrderController.php:90
+ * @see app/Http/Controllers/Vendor/OrderController.php:102
  * @route '/vendor/orders/{order}/status'
  */
 export const status = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -196,7 +196,7 @@ status.definition = {
 
 /**
 * @see \App\Http\Controllers\Vendor\OrderController::status
- * @see app/Http/Controllers/Vendor/OrderController.php:90
+ * @see app/Http/Controllers/Vendor/OrderController.php:102
  * @route '/vendor/orders/{order}/status'
  */
 status.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
@@ -229,7 +229,7 @@ status.url = (args: { order: string | { order_number: string } } | [order: strin
 
 /**
 * @see \App\Http\Controllers\Vendor\OrderController::status
- * @see app/Http/Controllers/Vendor/OrderController.php:90
+ * @see app/Http/Controllers/Vendor/OrderController.php:102
  * @route '/vendor/orders/{order}/status'
  */
 status.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -239,7 +239,7 @@ status.patch = (args: { order: string | { order_number: string } } | [order: str
 
     /**
 * @see \App\Http\Controllers\Vendor\OrderController::status
- * @see app/Http/Controllers/Vendor/OrderController.php:90
+ * @see app/Http/Controllers/Vendor/OrderController.php:102
  * @route '/vendor/orders/{order}/status'
  */
     const statusForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -254,7 +254,7 @@ status.patch = (args: { order: string | { order_number: string } } | [order: str
 
             /**
 * @see \App\Http\Controllers\Vendor\OrderController::status
- * @see app/Http/Controllers/Vendor/OrderController.php:90
+ * @see app/Http/Controllers/Vendor/OrderController.php:102
  * @route '/vendor/orders/{order}/status'
  */
         statusForm.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

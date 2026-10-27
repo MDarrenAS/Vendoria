@@ -1,8 +1,9 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import messages from './messages'
 import review from './review'
 /**
 * @see \App\Http\Controllers\Customer\OrderController::store
- * @see app/Http/Controllers/Customer/OrderController.php:114
+ * @see app/Http/Controllers/Customer/OrderController.php:123
  * @route '/orders'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -17,7 +18,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Customer\OrderController::store
- * @see app/Http/Controllers/Customer/OrderController.php:114
+ * @see app/Http/Controllers/Customer/OrderController.php:123
  * @route '/orders'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -26,7 +27,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Customer\OrderController::store
- * @see app/Http/Controllers/Customer/OrderController.php:114
+ * @see app/Http/Controllers/Customer/OrderController.php:123
  * @route '/orders'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -36,7 +37,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Customer\OrderController::store
- * @see app/Http/Controllers/Customer/OrderController.php:114
+ * @see app/Http/Controllers/Customer/OrderController.php:123
  * @route '/orders'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -46,7 +47,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Customer\OrderController::store
- * @see app/Http/Controllers/Customer/OrderController.php:114
+ * @see app/Http/Controllers/Customer/OrderController.php:123
  * @route '/orders'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -237,7 +238,7 @@ show.head = (args: { order: string | { order_number: string } } | [order: string
     show.form = showForm
 /**
 * @see \App\Http\Controllers\Customer\OrderController::cancel
- * @see app/Http/Controllers/Customer/OrderController.php:88
+ * @see app/Http/Controllers/Customer/OrderController.php:97
  * @route '/orders/{order}'
  */
 export const cancel = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -252,7 +253,7 @@ cancel.definition = {
 
 /**
 * @see \App\Http\Controllers\Customer\OrderController::cancel
- * @see app/Http/Controllers/Customer/OrderController.php:88
+ * @see app/Http/Controllers/Customer/OrderController.php:97
  * @route '/orders/{order}'
  */
 cancel.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
@@ -285,7 +286,7 @@ cancel.url = (args: { order: string | { order_number: string } } | [order: strin
 
 /**
 * @see \App\Http\Controllers\Customer\OrderController::cancel
- * @see app/Http/Controllers/Customer/OrderController.php:88
+ * @see app/Http/Controllers/Customer/OrderController.php:97
  * @route '/orders/{order}'
  */
 cancel.delete = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -295,7 +296,7 @@ cancel.delete = (args: { order: string | { order_number: string } } | [order: st
 
     /**
 * @see \App\Http\Controllers\Customer\OrderController::cancel
- * @see app/Http/Controllers/Customer/OrderController.php:88
+ * @see app/Http/Controllers/Customer/OrderController.php:97
  * @route '/orders/{order}'
  */
     const cancelForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -310,7 +311,7 @@ cancel.delete = (args: { order: string | { order_number: string } } | [order: st
 
             /**
 * @see \App\Http\Controllers\Customer\OrderController::cancel
- * @see app/Http/Controllers/Customer/OrderController.php:88
+ * @see app/Http/Controllers/Customer/OrderController.php:97
  * @route '/orders/{order}'
  */
         cancelForm.delete = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -326,7 +327,7 @@ cancel.delete = (args: { order: string | { order_number: string } } | [order: st
     cancel.form = cancelForm
 /**
 * @see \App\Http\Controllers\Customer\OrderController::payment
- * @see app/Http/Controllers/Customer/OrderController.php:100
+ * @see app/Http/Controllers/Customer/OrderController.php:109
  * @route '/orders/{order}/payment'
  */
 export const payment = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -341,7 +342,7 @@ payment.definition = {
 
 /**
 * @see \App\Http\Controllers\Customer\OrderController::payment
- * @see app/Http/Controllers/Customer/OrderController.php:100
+ * @see app/Http/Controllers/Customer/OrderController.php:109
  * @route '/orders/{order}/payment'
  */
 payment.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
@@ -374,7 +375,7 @@ payment.url = (args: { order: string | { order_number: string } } | [order: stri
 
 /**
 * @see \App\Http\Controllers\Customer\OrderController::payment
- * @see app/Http/Controllers/Customer/OrderController.php:100
+ * @see app/Http/Controllers/Customer/OrderController.php:109
  * @route '/orders/{order}/payment'
  */
 payment.post = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -384,7 +385,7 @@ payment.post = (args: { order: string | { order_number: string } } | [order: str
 
     /**
 * @see \App\Http\Controllers\Customer\OrderController::payment
- * @see app/Http/Controllers/Customer/OrderController.php:100
+ * @see app/Http/Controllers/Customer/OrderController.php:109
  * @route '/orders/{order}/payment'
  */
     const paymentForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -394,7 +395,7 @@ payment.post = (args: { order: string | { order_number: string } } | [order: str
 
             /**
 * @see \App\Http\Controllers\Customer\OrderController::payment
- * @see app/Http/Controllers/Customer/OrderController.php:100
+ * @see app/Http/Controllers/Customer/OrderController.php:109
  * @route '/orders/{order}/payment'
  */
         paymentForm.post = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -409,6 +410,7 @@ index: Object.assign(index, index),
 show: Object.assign(show, show),
 cancel: Object.assign(cancel, cancel),
 payment: Object.assign(payment, payment),
+messages: Object.assign(messages, messages),
 review: Object.assign(review, review),
 }
 

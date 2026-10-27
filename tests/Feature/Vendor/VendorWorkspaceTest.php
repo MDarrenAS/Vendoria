@@ -396,5 +396,41 @@ test('vendor can see the confirmed payment status on the order detail page', fun
             ->component('vendor/orders/show')
             ->where('order.payment_status', 'paid')
             ->where('order.payment_method', 'mandiri')
-            ->where('order.paid_at', fn ($paidAt) => $paidAt !== null));
+            ->where('order.paid_at', fn ($paidAt) => $paidAt !== null)
+            ->where('order.contact_phone', $order->contact_phone)
+            ->where('currentUserId', $vendor->id)
+            ->has('initialMessages', 0));
+});
+
+test('vendor can send a message to the customer through the order chat', function () {
+    $vendor = User::factory()->vendor()->create();
+    $profile = VendorProfile::factory()->for($vendor)->create();
+    $service = Service::factory()->for($profile)->for(Category::factory())->create();
+    $customer = User::factory()->create();
+    $order = Order::factory()
+        ->for($customer, 'customer')
+        ->for($profile)
+        ->for($service)
+        ->create(['status' => OrderStatus::Pending]);
+
+    $this->actingAs($vendor)
+        ->post(route('orders.messages.store', $order), [
+            'body' => 'Terima kasih, kami akan cek ketersediaan tanggalnya.',
+        ])
+        ->assertRedirect();
+
+    $this->actingAs($customer)
+        ->getJson(route('orders.messages.index', $order))
+        ->assertOk()
+        ->assertJsonPath('messages.0.body', 'Terima kasih, kami akan cek ketersediaan tanggalnya.')
+        ->assertJsonPath('messages.0.sender_id', $vendor->id);
+
+    $this->actingAs($vendor)
+        ->get(route('vendor.orders.show', $order))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('vendor/orders/show')
+            ->missing('order.contact_phone')
+            ->has('initialMessages', 1)
+            ->where('initialMessages.0.sender_name', $vendor->name));
 });

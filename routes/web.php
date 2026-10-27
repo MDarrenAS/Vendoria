@@ -10,6 +10,7 @@ use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\OrderDraftController;
 use App\Http\Controllers\Customer\ReviewController as CustomerReviewController;
+use App\Http\Controllers\OrderMessageController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\ServiceController;
 use App\Http\Controllers\Public\VendorController;
@@ -45,6 +46,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/orders/{order:order_number}/payment', [OrderController::class, 'confirmPayment'])
         ->middleware('role:customer')
         ->name('orders.payment');
+    Route::get('/orders/{order:order_number}/messages', [OrderMessageController::class, 'index'])
+        ->middleware('throttle:120,1')
+        ->name('orders.messages.index');
+    Route::post('/orders/{order:order_number}/messages', [OrderMessageController::class, 'store'])
+        ->middleware('throttle:30,1')
+        ->name('orders.messages.store');
     Route::post('/orders/{order:order_number}/review', [CustomerReviewController::class, 'store'])
         ->middleware('role:customer')
         ->name('orders.review.store');

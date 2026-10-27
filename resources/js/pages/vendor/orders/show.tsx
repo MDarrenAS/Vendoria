@@ -1,5 +1,6 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { CalendarDays, Clock3, MapPin, ShieldCheck } from 'lucide-react';
+import OrderChat, { type OrderChatMessage } from '@/components/order-chat';
 import VendorShell from '@/components/vendor-shell';
 import vendorOrders from '@/routes/vendor/orders';
 import { formatRupiah } from '@/types/marketplace';
@@ -13,7 +14,7 @@ type Order = {
     event_location: string;
     event_city: string;
     contact_name: string;
-    contact_phone: string;
+    contact_phone: string | null;
     quantity: number;
     notes: string | null;
     extras: Record<string, string> | null;
@@ -42,16 +43,20 @@ type PaymentMethod = 'bca' | 'mandiri' | 'bri' | 'bni';
 type Status = { value: string; label: string };
 type Props = {
     order: Order;
+    initialMessages: OrderChatMessage[];
+    currentUserId: number;
+    canSendMessages: boolean;
     statuses: Status[];
     dateConflict: boolean;
-    whatsAppUrl: string | null;
 };
 
 export default function VendorOrderShow({
     order,
+    initialMessages,
+    currentUserId,
+    canSendMessages,
     statuses,
     dateConflict,
-    whatsAppUrl,
 }: Props) {
     const changeUrl = vendorOrders.status(order.order_number);
     const statusLabel =
@@ -133,7 +138,11 @@ export default function VendorOrderShow({
                             />
                             <Row
                                 label="Kontak panitia"
-                                value={`${order.contact_name} · ${order.contact_phone}`}
+                                value={
+                                    order.contact_phone
+                                        ? `${order.contact_name} · ${order.contact_phone}`
+                                        : `${order.contact_name} · Nomor dibuka setelah pembayaran DP`
+                                }
                             />
                             <Row
                                 label="Jumlah"
@@ -232,16 +241,6 @@ export default function VendorOrderShow({
                                 </p>
                             </div>
                         </div>
-                        {whatsAppUrl && (
-                            <a
-                                href={whatsAppUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-emerald-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]"
-                            >
-                                Hubungi customer via WhatsApp
-                            </a>
-                        )}
                         {order.status === 'pending' && (
                             <div className="grid gap-4 border-t pt-5">
                                 <Form
@@ -347,6 +346,14 @@ export default function VendorOrderShow({
                         )}
                     </div>
                 </section>
+
+                <OrderChat
+                    orderNumber={order.order_number}
+                    initialMessages={initialMessages}
+                    currentUserId={currentUserId}
+                    counterpartName={order.customer.name}
+                    canSend={canSendMessages}
+                />
 
                 <section className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
                     <div className="flex items-center gap-3 border-b border-border/70 pb-4">

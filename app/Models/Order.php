@@ -76,6 +76,11 @@ class Order extends Model
         return $this->hasMany(OrderStatusHistory::class)->orderBy('created_at');
     }
 
+    public function messages(): HasMany
+    {
+        return $this->hasMany(OrderMessage::class);
+    }
+
     public function review(): HasOne
     {
         return $this->hasOne(Review::class);

@@ -12,7 +12,7 @@ use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\Customer\CancelOrderRequest;
 use App\Http\Requests\Customer\ConfirmOrderPaymentRequest;
 use App\Models\Order;
-use App\Support\WhatsApp;
+use App\Models\OrderMessage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -57,22 +57,25 @@ class OrderController extends Controller
     {
         Gate::authorize('view', $order);
         $order->load([
-            'vendorProfile:id,business_name,slug,city,whatsapp_number',
+            'vendorProfile:id,business_name,slug,city',
             'statusHistories.changedBy:id,name',
             'review:id,order_id,rating,comment,created_at',
         ]);
 
-        $phone = WhatsApp::normalize($order->vendorProfile->whatsapp_number);
-        $whatsAppUrl = $phone === null
-            ? null
-            : WhatsApp::link($phone, sprintf(
-                'Halo %s, saya %s. Saya ingin menanyakan pesanan %s untuk layanan "%s" pada %s. Terima kasih.',
-                $order->vendorProfile->business_name,
-                $order->contact_name,
-                $order->order_number,
-                $order->service_name_snapshot,
-                $order->event_date->translatedFormat('d F Y'),
-            ));
+        $initialMessages = $order->messages()
+            ->with('sender:id,name')
+            ->orderByDesc('id')
+            ->limit(50)
+            ->get()
+            ->reverse()
+            ->values()
+            ->map(fn (OrderMessage $message): array => [
+                'id' => $message->id,
+                'body' => $message->body,
+                'created_at' => $message->created_at->toIso8601String(),
+                'sender_id' => $message->sender_id,
+                'sender_name' => $message->sender->name,
+            ]);
 
         $order->makeHidden(['id', 'customer_id', 'vendor_profile_id', 'service_id', 'package_id']);
         $order->vendorProfile->makeHidden(['id', 'user_id', 'whatsapp_number', 'logo_path', 'cover_path']);
@@ -81,7 +84,13 @@ class OrderController extends Controller
 
         return Inertia::render('customer/order-show', [
             'order' => $order,
-            'whatsAppUrl' => $whatsAppUrl,
+            'initialMessages' => $initialMessages,
+            'currentUserId' => auth()->id(),
+            'canSendMessages' => ! in_array($order->status, [
+                OrderStatus::Completed,
+                OrderStatus::Rejected,
+                OrderStatus::Cancelled,
+            ], true),
         ]);
     }
 
