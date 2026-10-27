@@ -7,7 +7,11 @@ import type {
     Category,
     ServiceCard,
 } from '@/types/marketplace';
-import { formatRupiah, priceUnitLabel } from '@/types/marketplace';
+import {
+    formatRupiah,
+    priceUnitLabel,
+    serviceCoverPhoto,
+} from '@/types/marketplace';
 
 type VendorSearchProps = {
     services: CatalogPagination;
@@ -33,8 +37,19 @@ function ServiceResultCard({ service }: { service: ServiceCard }) {
                 className="grid h-full sm:grid-cols-[220px_1fr]"
             >
                 <img
-                    src={service.cover_url}
+                    src={serviceCoverPhoto(
+                        service.cover_url,
+                        service.category.name,
+                        service.slug,
+                    )}
                     alt={`Foto ${service.name}`}
+                    onError={(event) => {
+                        event.currentTarget.src = serviceCoverPhoto(
+                            null,
+                            service.category.name,
+                            service.slug,
+                        );
+                    }}
                     className="h-52 w-full bg-muted object-cover transition duration-500 group-hover:scale-[1.03] sm:h-full"
                     loading="lazy"
                 />
@@ -85,8 +100,8 @@ export default function VendorIndex({
     return (
         <>
             <Head title="Cari Vendor" />
-            <main className="mx-auto grid max-w-7xl gap-6 px-5 py-8 lg:grid-cols-[290px_1fr]">
-                <aside className="h-fit rounded-3xl border border-brand-200/80 bg-gradient-to-br from-brand-50 via-card to-teal-50/80 p-5 shadow-sm lg:sticky lg:top-24">
+            <main className="mx-auto grid max-w-[1280px] gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:px-8">
+                <aside className="h-fit rounded-xl border border-border/70 bg-card p-5 shadow-sm lg:sticky lg:top-16 lg:z-10 lg:self-start">
                     <span className="mb-4 flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
                         <Search className="size-5" />
                     </span>
@@ -234,7 +249,7 @@ export default function VendorIndex({
                         </div>
                     </div>
                     {services.data.length === 0 ? (
-                        <div className="rounded-xl border border-dashed p-10 text-center">
+                        <div className="rounded-xl border border-dashed bg-card p-10 text-center">
                             <h3 className="font-semibold">
                                 Belum ada layanan yang cocok
                             </h3>
@@ -249,7 +264,7 @@ export default function VendorIndex({
                             </Link>
                         </div>
                     ) : (
-                        <div className="grid gap-4">
+                        <div className="grid gap-3">
                             {services.data.map((service) => (
                                 <ServiceResultCard
                                     key={service.id}

@@ -3,6 +3,7 @@ export type Category = {
     name: string;
     slug: string;
     icon: string | null;
+    vendor_count?: number;
 };
 
 export type ServicePackage = {
@@ -64,4 +65,45 @@ export function priceUnitLabel(unit: string): string {
     };
 
     return labels[unit] ?? unit;
+}
+
+export function stockPhotoForCategory(category: string): string {
+    const normalizedCategory = category.toLocaleLowerCase('id-ID');
+
+    if (
+        normalizedCategory.includes('katering') ||
+        normalizedCategory.includes('catering')
+    ) {
+        return '/images/stock-catering.jpg';
+    }
+
+    if (normalizedCategory.includes('dekor')) {
+        return '/images/stock-decor.jpg';
+    }
+
+    return '/images/stock-event.jpg';
+}
+
+export function serviceCoverPhoto(
+    imageUrl: string | null,
+    category: string,
+    serviceSlug?: string,
+): string {
+    const isPlaceholder =
+        !imageUrl ||
+        ['/vendorialogo.png', '/event-placeholder.jpg'].some((placeholder) =>
+            imageUrl.toLocaleLowerCase('id-ID').includes(placeholder),
+        );
+
+    if (isPlaceholder) {
+        const demoServiceNumber = Number(serviceSlug?.match(/-(\d{2})$/)?.[1]);
+
+        if (demoServiceNumber >= 1 && demoServiceNumber <= 40) {
+            return `/images/services/service-${String(demoServiceNumber).padStart(2, '0')}.jpg`;
+        }
+
+        return stockPhotoForCategory(category);
+    }
+
+    return imageUrl;
 }

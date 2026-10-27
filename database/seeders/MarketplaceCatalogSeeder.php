@@ -88,7 +88,7 @@ class MarketplaceCatalogSeeder extends Seeder
                         'address' => 'Pusat kota '.$city,
                         'whatsapp_number' => '628123456789',
                         'contact_email' => $email,
-                        'cover_path' => 'placeholder:VendoriaLogo.png',
+                        'cover_path' => 'placeholder:stock-event-venue.jpg',
                         'is_verified' => $index < 8,
                         'is_active' => true,
                     ],
@@ -100,8 +100,8 @@ class MarketplaceCatalogSeeder extends Seeder
                 'Paket Acara Premium', 'Layanan Lengkap', 'Paket Spesial', 'Paket Intimate',
                 'Paket Elegan', 'Paket Hemat', 'Paket Eksklusif', 'Paket Keluarga',
             ];
-
             $serviceRows = [];
+            $serviceImagePaths = [];
 
             for ($index = 0; $index < 40; $index++) {
                 $vendor = $vendors[$index % count($vendors)];
@@ -124,6 +124,7 @@ class MarketplaceCatalogSeeder extends Seeder
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
+                $serviceImagePaths[$slug] = 'placeholder:services/service-'.str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT).'.jpg';
             }
 
             Service::query()->upsert(
@@ -155,7 +156,7 @@ class MarketplaceCatalogSeeder extends Seeder
 
                 $imageRows[] = [
                     'service_id' => $service->id,
-                    'path' => 'placeholder:VendoriaLogo.png',
+                    'path' => $serviceImagePaths[$service->slug],
                     'caption' => $service->slug,
                     'is_cover' => true,
                     'sort_order' => 0,

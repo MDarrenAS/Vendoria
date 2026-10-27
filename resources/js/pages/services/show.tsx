@@ -1,7 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
+import { CalendarDays, CircleCheck, ShieldCheck } from 'lucide-react';
 import { show as vendorShow } from '@/actions/App/Http/Controllers/Public/VendorController';
 import type { ServicePackage } from '@/types/marketplace';
-import { formatRupiah, priceUnitLabel } from '@/types/marketplace';
+import {
+    formatRupiah,
+    priceUnitLabel,
+    serviceCoverPhoto,
+} from '@/types/marketplace';
 
 type ServiceDetail = {
     id: number;
@@ -64,10 +69,10 @@ export default function ServiceShow({
                     content={`${service.name} oleh ${service.vendor_profile.business_name} di ${service.vendor_profile.city}. Lihat paket dan harga di Vendoria.`}
                 />
             </Head>
-            <main className="mx-auto max-w-7xl space-y-12 px-5 py-10">
+            <main className="mx-auto max-w-[1280px] space-y-9 px-4 py-6 sm:px-6 lg:px-8">
                 <nav
                     aria-label="Breadcrumb"
-                    className="inline-flex flex-wrap items-center gap-1.5 rounded-full border border-border/70 bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm"
+                    className="inline-flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground"
                 >
                     <Link href="/vendors" className="hover:text-primary">
                         Cari Vendor
@@ -85,9 +90,20 @@ export default function ServiceShow({
                 <section className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
                     <div className="space-y-3">
                         <img
-                            src={service.cover_url}
+                            src={serviceCoverPhoto(
+                                service.cover_url,
+                                service.category.name,
+                                service.slug,
+                            )}
                             alt={`Foto utama ${service.name}`}
-                            className="h-80 w-full rounded-3xl border border-border/70 bg-muted object-cover shadow-xl shadow-primary/10 md:h-[460px]"
+                            onError={(event) => {
+                                event.currentTarget.src = serviceCoverPhoto(
+                                    null,
+                                    service.category.name,
+                                    service.slug,
+                                );
+                            }}
+                            className="h-72 w-full rounded-xl border border-border/70 bg-muted object-cover sm:h-80 md:h-[420px]"
                         />
                         {service.images.length > 1 && (
                             <div className="grid grid-cols-4 gap-3">
@@ -101,14 +117,14 @@ export default function ServiceShow({
                                                 image.caption ??
                                                 `Foto ${service.name}`
                                             }
-                                            className="h-24 w-full rounded-2xl border border-border/70 object-cover shadow-sm"
+                                            className="h-20 w-full rounded-lg border border-border/70 object-cover sm:h-24"
                                             loading="lazy"
                                         />
                                     ))}
                             </div>
                         )}
                     </div>
-                    <div className="space-y-5 rounded-3xl border border-border/70 bg-card/90 p-6 shadow-xl shadow-primary/5 md:p-8">
+                    <div className="space-y-5 rounded-xl border border-border/70 bg-card p-5 shadow-sm md:p-6">
                         <p className="inline-flex rounded-full bg-primary/10 px-3 py-1.5 text-sm font-bold text-primary">
                             {service.category.name}
                         </p>
@@ -133,7 +149,7 @@ export default function ServiceShow({
                                 ? `★ ${service.rating_avg} (${service.rating_count} ulasan)`
                                 : 'Belum ada ulasan'}
                         </p>
-                        <p className="rounded-2xl bg-accent/70 p-4 text-2xl font-bold text-accent-foreground">
+                        <p className="rounded-lg bg-secondary p-4 text-2xl font-bold text-primary">
                             Mulai dari {formatRupiah(service.base_price)}{' '}
                             <span className="text-base font-normal text-muted-foreground">
                                 / {priceUnitLabel(service.price_unit)}
@@ -165,10 +181,10 @@ export default function ServiceShow({
 
                 <section id="paket" className="space-y-5">
                     <div>
-                        <p className="text-sm text-primary">
-                            Pilih sesuai kebutuhan acara
+                        <p className="text-xs font-bold tracking-wide text-primary">
+                            PILIH SESUAI KEBUTUHAN ACARA
                         </p>
-                        <h2 className="text-2xl font-semibold">
+                        <h2 className="mt-1 text-2xl font-bold tracking-tight">
                             Paket layanan
                         </h2>
                     </div>
@@ -177,50 +193,57 @@ export default function ServiceShow({
                             Belum ada paket aktif untuk layanan ini.
                         </p>
                     ) : (
-                        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                            {service.packages.map((servicePackage) => (
+                        <div className="grid gap-4 md:grid-cols-2">
+                            {service.packages.map((servicePackage, index) => (
                                 <article
                                     key={servicePackage.id}
-                                    className="flex flex-col gap-4 rounded-3xl border border-border/70 bg-gradient-to-br from-brand-50/70 via-card to-card p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                                    className={`flex flex-col gap-4 rounded-2xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md ${index === 1 ? 'border-primary/20' : 'border-border/70'}`}
                                 >
-                                    <div>
-                                        <h3 className="text-lg font-semibold">
+                                    <div className="grid gap-3">
+                                        <span className="w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                                            {index === 0
+                                                ? 'Reguler'
+                                                : 'Paket lengkap'}
+                                        </span>
+                                        <h3 className="text-lg font-bold tracking-tight">
                                             {servicePackage.name}
                                         </h3>
                                         {servicePackage.description && (
-                                            <p className="mt-2 text-sm text-muted-foreground">
+                                            <p className="text-sm leading-6 text-muted-foreground">
                                                 {servicePackage.description}
                                             </p>
                                         )}
                                     </div>
-                                    <p className="text-2xl font-bold text-primary">
-                                        {formatRupiah(servicePackage.price)}{' '}
-                                        <span className="text-sm font-normal text-muted-foreground">
-                                            /{' '}
-                                            {priceUnitLabel(service.price_unit)}
-                                        </span>
-                                    </p>
+                                    <div className="rounded-xl bg-blue-50 px-4 py-3">
+                                        <p className="text-xl font-bold text-primary">
+                                            {formatRupiah(servicePackage.price)}{' '}
+                                            <span className="text-xs font-normal text-muted-foreground">
+                                                /{' '}
+                                                {priceUnitLabel(
+                                                    service.price_unit,
+                                                )}
+                                            </span>
+                                        </p>
+                                    </div>
                                     <ul className="grid gap-2 text-sm">
                                         {servicePackage.features.map(
                                             (feature) => (
                                                 <li
                                                     key={feature}
-                                                    className="flex gap-2"
+                                                    className="flex items-start gap-2 text-muted-foreground"
                                                 >
-                                                    <span
-                                                        className="text-primary"
+                                                    <CircleCheck
+                                                        className="mt-0.5 size-4 shrink-0 text-primary"
                                                         aria-hidden="true"
-                                                    >
-                                                        ✓
-                                                    </span>
-                                                    {feature}
+                                                    />
+                                                    <span>{feature}</span>
                                                 </li>
                                             ),
                                         )}
                                     </ul>
                                     <Link
                                         href={`/order/create?service=${service.id}&package=${servicePackage.id}`}
-                                        className="mt-auto rounded-xl bg-primary px-4 py-3 text-center font-bold text-primary-foreground shadow-md shadow-primary/15 transition hover:-translate-y-0.5"
+                                        className="mt-auto rounded-full bg-primary px-4 py-3 text-center text-sm font-bold text-primary-foreground shadow-md shadow-primary/15 transition hover:-translate-y-0.5"
                                     >
                                         Pesan Sekarang
                                     </Link>
@@ -230,42 +253,69 @@ export default function ServiceShow({
                     )}
                 </section>
 
-                {service.terms && (
-                    <section className="space-y-3 rounded-3xl border border-border/70 bg-card p-6 shadow-sm">
-                        <h2 className="text-xl font-semibold">
-                            Ketentuan layanan
-                        </h2>
-                        <p className="leading-7 text-muted-foreground">
-                            {service.terms}
-                        </p>
-                    </section>
-                )}
-
-                <section className="space-y-3 rounded-3xl border border-border/70 bg-card p-6 shadow-sm">
-                    <h2 className="text-xl font-semibold">
-                        Tanggal tidak tersedia
-                    </h2>
-                    {service.vendor_profile.blocked_dates.length ? (
-                        <ul className="flex flex-wrap gap-2">
-                            {service.vendor_profile.blocked_dates.map(
-                                ({ date }) => (
-                                    <li
-                                        key={date}
-                                        className="rounded-md bg-muted px-3 py-2 text-sm"
-                                    >
-                                        {new Intl.DateTimeFormat('id-ID', {
-                                            dateStyle: 'long',
-                                            timeZone: 'Asia/Jakarta',
-                                        }).format(new Date(`${date}T12:00:00`))}
-                                    </li>
-                                ),
-                            )}
-                        </ul>
-                    ) : (
-                        <p className="text-sm text-muted-foreground">
-                            Belum ada tanggal yang ditandai penuh.
-                        </p>
+                <section className="grid gap-4 lg:grid-cols-2">
+                    {service.terms && (
+                        <article className="rounded-2xl border border-border/70 bg-white p-5 shadow-sm">
+                            <div className="mb-3 flex items-center gap-3">
+                                <span className="flex size-10 items-center justify-center rounded-full bg-blue-50 text-primary">
+                                    <ShieldCheck className="size-5" />
+                                </span>
+                                <div>
+                                    <h2 className="font-bold">
+                                        Ketentuan layanan
+                                    </h2>
+                                    <p className="text-xs text-muted-foreground">
+                                        Harap dibaca sebelum melakukan pemesanan
+                                    </p>
+                                </div>
+                            </div>
+                            <p className="rounded-xl bg-blue-50/70 p-4 text-sm leading-6 text-muted-foreground">
+                                {service.terms}
+                            </p>
+                        </article>
                     )}
+
+                    <article className="rounded-2xl border border-border/70 bg-white p-5 shadow-sm">
+                        <div className="mb-3 flex items-center gap-3">
+                            <span className="flex size-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                                <CalendarDays className="size-5" />
+                            </span>
+                            <div>
+                                <h2 className="font-bold">
+                                    Ketersediaan Tanggal
+                                </h2>
+                                <p className="text-xs text-muted-foreground">
+                                    Pemantauan otomatis sistem Vendoria
+                                </p>
+                            </div>
+                        </div>
+                        {service.vendor_profile.blocked_dates.length ? (
+                            <ul className="flex flex-wrap gap-2 rounded-xl bg-emerald-50/70 p-4">
+                                {service.vendor_profile.blocked_dates.map(
+                                    ({ date }) => (
+                                        <li
+                                            key={date}
+                                            className="rounded-full bg-white px-3 py-2 text-sm"
+                                        >
+                                            {new Intl.DateTimeFormat('id-ID', {
+                                                dateStyle: 'long',
+                                                timeZone: 'Asia/Jakarta',
+                                            }).format(
+                                                new Date(`${date}T12:00:00`),
+                                            )}
+                                        </li>
+                                    ),
+                                )}
+                            </ul>
+                        ) : (
+                            <p className="flex items-start gap-2 rounded-xl bg-emerald-50/70 p-4 text-sm leading-6 text-muted-foreground">
+                                <CircleCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                                Belum ada tanggal yang ditandai penuh oleh
+                                vendor ini. Silakan pilih dan cantumkan tanggal
+                                yang Anda kehendaki saat proses checkout.
+                            </p>
+                        )}
+                    </article>
                 </section>
                 <section className="space-y-4">
                     <div>

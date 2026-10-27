@@ -60,7 +60,7 @@ export default function VendorDashboard({
         <VendorShell title="Dashboard Vendor">
             <Head title="Dashboard Vendor" />
             <main className="space-y-8">
-                <div className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-r from-brand-950 via-brand-800 to-brand-700 p-7 text-white shadow-xl shadow-brand-950/15 md:p-9">
+                <div className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-r from-brand-950 via-brand-800 to-brand-700 p-6 text-white shadow-lg shadow-brand-950/10 md:p-8">
                     <span
                         aria-hidden="true"
                         className="absolute -right-12 -bottom-32 size-72 rounded-full bg-amber-300/20 blur-2xl"
@@ -75,6 +75,10 @@ export default function VendorDashboard({
                         Pantau performa layanan dan pesanan terbaru dalam satu
                         tempat.
                     </p>
+                    <div className="relative mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-medium text-white/90 backdrop-blur md:absolute md:top-1/2 md:right-8 md:mt-0 md:-translate-y-1/2">
+                        <span className="size-2 rounded-full bg-emerald-400" />
+                        Status usaha · Siap menerima pesanan
+                    </div>
                 </div>
 
                 {stats.staleOrders > 0 && (
@@ -125,7 +129,7 @@ export default function VendorDashboard({
                     ].map((stat) => (
                         <article
                             key={stat.label}
-                            className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                            className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
                         >
                             <span
                                 className={`mb-4 flex size-10 items-center justify-center rounded-xl ${stat.color}`}

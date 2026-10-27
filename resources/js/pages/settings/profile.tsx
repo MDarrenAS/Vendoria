@@ -36,27 +36,75 @@ export default function Profile({
             <h1 className="sr-only">Pengaturan profil</h1>
 
             <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title="Profil"
-                    description="Perbarui nama, email, nomor telepon, dan foto profil Anda."
-                />
-
                 <Form
                     {...ProfileController.update.form()}
                     options={{
                         preserveScroll: true,
                     }}
-                    className="space-y-6"
+                    className="space-y-6 rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-7"
                 >
                     {({ processing, errors }) => (
                         <>
+                            <Heading
+                                variant="small"
+                                title="Profil"
+                                description="Perbarui nama, email, nomor telepon, dan foto profil Anda."
+                            />
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="avatar">
+                                    Foto profil (maksimal 2 MB)
+                                </Label>
+                                <div className="flex flex-wrap items-center gap-4">
+                                    {user.avatar_url ? (
+                                        <img
+                                            src={user.avatar_url}
+                                            alt={`Foto profil ${user.name}`}
+                                            className="size-16 rounded-2xl object-cover"
+                                        />
+                                    ) : (
+                                        <span
+                                            aria-hidden="true"
+                                            className="flex size-16 items-center justify-center rounded-2xl bg-primary text-lg font-semibold text-primary-foreground"
+                                        >
+                                            {user.name
+                                                .split(/\s+/)
+                                                .slice(0, 2)
+                                                .map((part) => part[0])
+                                                .join('')
+                                                .toUpperCase()}
+                                        </span>
+                                    )}
+                                    <Input
+                                        id="avatar"
+                                        type="file"
+                                        name="avatar"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        className="min-w-0 flex-1"
+                                    />
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    Format JPG, PNG, atau WebP.
+                                </p>
+                                <InputError message={errors.avatar} />
+                                {user.avatar_url && (
+                                    <label className="flex items-center gap-2 text-sm">
+                                        <input
+                                            type="checkbox"
+                                            name="remove_avatar"
+                                            value="1"
+                                        />
+                                        Hapus foto profil
+                                    </label>
+                                )}
+                            </div>
+
                             <div className="grid gap-2">
                                 <Label htmlFor="name">Nama</Label>
 
                                 <Input
                                     id="name"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block h-11 w-full rounded-lg"
                                     defaultValue={user.name}
                                     name="name"
                                     required
@@ -76,7 +124,7 @@ export default function Profile({
                                 <Input
                                     id="email"
                                     type="email"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block h-11 w-full rounded-lg"
                                     defaultValue={user.email}
                                     name="email"
                                     required
@@ -103,35 +151,16 @@ export default function Profile({
                                 <InputError message={errors.phone} />
                             </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="avatar">Foto profil (maksimal 2 MB)</Label>
-                                {user.avatar_url && (
-                                    <img src={user.avatar_url} alt="Foto profil saat ini" className="size-16 rounded-full object-cover" />
-                                )}
-                                <Input
-                                    id="avatar"
-                                    type="file"
-                                    name="avatar"
-                                    accept="image/jpeg,image/png,image/webp"
-                                />
-                                <InputError message={errors.avatar} />
-                                {user.avatar_url && (
-                                    <label className="flex items-center gap-2 text-sm">
-                                        <input type="checkbox" name="remove_avatar" value="1" />
-                                        Hapus foto profil
-                                    </label>
-                                )}
-                            </div>
-
                             {mustVerifyEmail &&
                                 user.email_verified_at === null && (
                                     <div>
                                         <p className="-mt-4 text-sm text-muted-foreground">
-                                            Alamat email Anda belum diverifikasi.{' '}
+                                            Alamat email Anda belum
+                                            diverifikasi.{' '}
                                             <Link
                                                 href={send()}
                                                 as="button"
-                                                className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                                                className="text-foreground underline decoration-neutral-300 underline-offset-4 hover:decoration-current!"
                                             >
                                                 Kirim ulang email verifikasi.
                                             </Link>
@@ -140,7 +169,8 @@ export default function Profile({
                                         {status ===
                                             'verification-link-sent' && (
                                             <div className="mt-2 text-sm font-medium text-green-600">
-                                                Tautan verifikasi baru telah dikirim ke email Anda.
+                                                Tautan verifikasi baru telah
+                                                dikirim ke email Anda.
                                             </div>
                                         )}
                                     </div>
@@ -159,7 +189,9 @@ export default function Profile({
                 </Form>
             </div>
 
-            <DeleteUser />
+            <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-7">
+                <DeleteUser />
+            </div>
         </>
     );
 }

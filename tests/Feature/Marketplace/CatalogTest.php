@@ -30,6 +30,7 @@ test('the public homepage displays active categories and verified services', fun
         ->assertInertia(fn (Assert $page) => $page
             ->component('welcome')
             ->where('categories.0.name', 'Dekorasi')
+            ->where('categories.0.vendor_count', 1)
             ->where('featuredServices.0.slug', $featuredService->slug)
             ->has('newestServices', 1));
 

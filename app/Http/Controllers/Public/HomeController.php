@@ -20,11 +20,28 @@ class HomeController extends Controller
             return to_route('vendor.dashboard');
         }
 
-        $catalog = Cache::remember('marketplace.home.v2', now()->addMinutes(10), function (): array {
+        $catalog = Cache::remember('marketplace.home.v3', now()->addMinutes(10), function (): array {
             $categories = Category::query()
                 ->where('is_active', true)
                 ->orderBy('sort_order')
                 ->get(['id', 'name', 'slug', 'icon']);
+
+            $vendorCounts = Service::query()
+                ->join('vendor_profiles', 'services.vendor_profile_id', '=', 'vendor_profiles.id')
+                ->join('users', 'vendor_profiles.user_id', '=', 'users.id')
+                ->where('services.is_active', true)
+                ->whereNull('vendor_profiles.deleted_at')
+                ->where('vendor_profiles.is_active', true)
+                ->where('users.is_active', true)
+                ->select('services.category_id')
+                ->selectRaw('count(distinct services.vendor_profile_id) as vendor_count')
+                ->groupBy('services.category_id')
+                ->pluck('vendor_count', 'services.category_id');
+
+            $categories->each(fn (Category $category) => $category->setAttribute(
+                'vendor_count',
+                (int) ($vendorCounts[$category->id] ?? 0),
+            ));
 
             $baseQuery = Service::query()
                 ->where('is_active', true)

@@ -1,7 +1,11 @@
 import { Head, Link } from '@inertiajs/react';
 import { show as serviceShow } from '@/actions/App/Http/Controllers/Public/ServiceController';
 import type { Category, ServicePackage } from '@/types/marketplace';
-import { formatRupiah, priceUnitLabel } from '@/types/marketplace';
+import {
+    formatRupiah,
+    priceUnitLabel,
+    serviceCoverPhoto,
+} from '@/types/marketplace';
 
 type VendorService = {
     id: number;
@@ -55,23 +59,32 @@ export default function VendorShow({
     return (
         <>
             <Head title={vendor.business_name} />
-            <main className="mx-auto max-w-7xl space-y-12 px-5 py-10">
-                <section className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-xl shadow-primary/5">
+            <main className="mx-auto flex max-w-[1280px] flex-col gap-7 px-4 py-6 sm:px-6 lg:px-8">
+                <section className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
                     <img
                         src={
-                            vendor.cover_url ?? '/images/event-placeholder.jpg'
+                            vendor.cover_url
+                                ?.toLocaleLowerCase('id-ID')
+                                .includes('/vendorialogo.png')
+                                ? '/images/stock-event-venue.jpg'
+                                : (vendor.cover_url ??
+                                  '/images/stock-event-venue.jpg')
                         }
                         alt={`Sampul ${vendor.business_name}`}
-                        className="h-56 w-full bg-muted object-cover md:h-96"
+                        onError={(event) => {
+                            event.currentTarget.src =
+                                '/images/stock-event-venue.jpg';
+                        }}
+                        className="h-40 w-full bg-muted object-cover sm:h-48 md:h-56"
                     />
-                    <div className="flex flex-wrap items-center gap-5 bg-gradient-to-r from-brand-50 via-card to-teal-50/70 p-6 md:p-8">
+                    <div className="flex flex-wrap items-center gap-4 border-b border-border/70 p-5 md:p-6">
                         <img
                             src={
                                 vendor.logo_url ??
                                 '/images/VendoriaLogoNoWord.png'
                             }
                             alt={`Logo ${vendor.business_name}`}
-                            className="-mt-14 size-24 rounded-3xl border-4 border-card bg-background object-contain p-3 shadow-lg"
+                            className="-mt-12 size-20 rounded-2xl border-4 border-card bg-background object-contain p-3 shadow-md"
                         />
                         <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-3">
@@ -84,7 +97,7 @@ export default function VendorShow({
                                     </span>
                                 )}
                             </div>
-                            <p className="mt-2 text-muted-foreground">
+                            <p className="mt-1 text-sm text-muted-foreground">
                                 {vendor.city}, {vendor.province}
                             </p>
                             <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-900">
@@ -98,18 +111,73 @@ export default function VendorShow({
                                 href={whatsappUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="rounded-full border border-primary/20 bg-card px-5 py-3 font-semibold text-primary shadow-sm transition hover:-translate-y-0.5 hover:bg-primary/5"
+                                className="rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-600 active:scale-[0.98]"
                             >
                                 Hubungi via WhatsApp
                             </a>
                         )}
                     </div>
-                    <p className="max-w-4xl px-6 pb-8 leading-7 text-muted-foreground md:px-8">
-                        {vendor.description}
-                    </p>
+                    <div
+                        id="tentang"
+                        className="flex flex-wrap items-center justify-between gap-5 px-5 py-4 md:px-6"
+                    >
+                        <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
+                            {vendor.description}
+                        </p>
+                        <div className="grid min-w-64 grid-cols-3 gap-2 text-center">
+                            <div className="rounded-lg bg-secondary px-3 py-2">
+                                <p className="font-semibold text-primary">
+                                    {vendor.services.length}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground">
+                                    Layanan aktif
+                                </p>
+                            </div>
+                            <div className="rounded-lg bg-secondary px-3 py-2">
+                                <p className="font-semibold">
+                                    {Number(vendor.rating_avg).toFixed(1)}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground">
+                                    Rating
+                                </p>
+                            </div>
+                            <div className="rounded-lg bg-secondary px-3 py-2">
+                                <p className="font-semibold text-amber-600">
+                                    {vendor.rating_count}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground">
+                                    Ulasan
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </section>
 
-                <section className="space-y-4">
+                <nav
+                    aria-label="Navigasi profil vendor"
+                    className="flex flex-wrap gap-2 rounded-full bg-secondary p-1"
+                >
+                    <a
+                        href="#katalog"
+                        className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                    >
+                        Katalog Layanan
+                    </a>
+                    <a
+                        href="#tentang"
+                        className="rounded-full px-4 py-2 text-sm font-medium hover:bg-card"
+                    >
+                        Tentang Kami
+                    </a>
+                    <a
+                        href="#ulasan"
+                        className="rounded-full px-4 py-2 text-sm font-medium hover:bg-card"
+                    >
+                        Ulasan & Testimoni
+                    </a>
+                </nav>
+
+                <section id="ulasan" className="order-3 space-y-4">
                     <div>
                         <h2 className="text-2xl font-semibold">
                             Ulasan pelanggan
@@ -166,7 +234,7 @@ export default function VendorShow({
                     )}
                 </section>
 
-                <section className="space-y-5">
+                <section id="katalog" className="order-2 space-y-5">
                     <div>
                         <p className="text-sm font-bold tracking-wide text-primary">
                             KATALOG USAHA
@@ -185,12 +253,24 @@ export default function VendorShow({
                                 <Link
                                     key={service.id}
                                     href={serviceShow(service.slug)}
-                                    className="group overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-lg"
+                                    className="group overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-shadow duration-200 hover:border-primary/25 hover:shadow-md active:scale-[0.99]"
                                 >
                                     <img
-                                        src={service.cover_url}
+                                        src={serviceCoverPhoto(
+                                            service.cover_url,
+                                            service.category.name,
+                                            service.slug,
+                                        )}
                                         alt={`Foto ${service.name}`}
-                                        className="h-48 w-full bg-muted object-cover transition duration-500 group-hover:scale-105"
+                                        onError={(event) => {
+                                            event.currentTarget.src =
+                                                serviceCoverPhoto(
+                                                    null,
+                                                    service.category.name,
+                                                    service.slug,
+                                                );
+                                        }}
+                                        className="h-44 w-full bg-muted object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                                         loading="lazy"
                                     />
                                     <div className="space-y-2 p-5">

@@ -1,9 +1,28 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowUpRight, BadgeCheck, Search, Sparkles, Star } from 'lucide-react';
+import {
+    ArrowUpRight,
+    BadgeCheck,
+    Building2,
+    Bus,
+    Camera,
+    Flower2,
+    MicVocal,
+    Music2,
+    Printer,
+    Search,
+    Sparkles,
+    Star,
+    TentTree,
+    Utensils,
+} from 'lucide-react';
 import { register } from '@/routes';
 import { index as vendorsIndex } from '@/routes/vendors';
 import type { Category, ServiceCard } from '@/types/marketplace';
-import { formatRupiah, priceUnitLabel } from '@/types/marketplace';
+import {
+    formatRupiah,
+    priceUnitLabel,
+    serviceCoverPhoto,
+} from '@/types/marketplace';
 
 type WelcomeProps = {
     categories: Category[];
@@ -21,18 +40,29 @@ function ServiceGrid({ services }: { services: ServiceCard[] }) {
     }
 
     return (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {services.map((service) => (
                 <article
                     key={service.id}
-                    className="group overflow-hidden rounded-2xl border border-border/70 bg-card text-card-foreground shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10"
+                    className="group overflow-hidden rounded-2xl border border-border/70 bg-card text-card-foreground shadow-sm transition-shadow duration-200 hover:border-primary/30 hover:shadow-lg active:scale-[0.99]"
                 >
                     <Link href={`/services/${service.slug}`} className="block">
                         <div className="relative overflow-hidden">
                             <img
-                                src={service.cover_url}
+                                src={serviceCoverPhoto(
+                                    service.cover_url,
+                                    service.category.name,
+                                    service.slug,
+                                )}
                                 alt={`Foto ${service.name}`}
-                                className="h-48 w-full bg-muted object-cover transition duration-500 group-hover:scale-105"
+                                onError={(event) => {
+                                    event.currentTarget.src = serviceCoverPhoto(
+                                        null,
+                                        service.category.name,
+                                        service.slug,
+                                    );
+                                }}
+                                className="h-40 w-full bg-muted object-cover sm:h-44"
                                 loading="lazy"
                             />
                             <span className="absolute top-3 left-3 rounded-full border border-white/30 bg-black/35 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
@@ -106,13 +136,13 @@ export default function Welcome({
                             aria-hidden="true"
                             className="absolute bottom-0 -left-24 size-80 rounded-full bg-teal-300/20 blur-3xl"
                         />
-                        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 md:grid-cols-[1.05fr_0.8fr] md:py-24">
-                            <div className="space-y-7">
+                        <div className="relative mx-auto grid max-w-[1280px] items-center gap-7 px-5 py-12 md:px-8 lg:grid-cols-[1fr_0.72fr_0.92fr] lg:gap-6 lg:py-14">
+                            <div className="space-y-6">
                                 <p className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur">
                                     <Sparkles className="size-4 text-amber-200" />
                                     Marketplace vendor acara Indonesia
                                 </p>
-                                <h1 className="max-w-3xl text-4xl leading-[1.08] font-bold tracking-tight md:text-6xl">
+                                <h1 className="max-w-3xl text-4xl leading-[1.08] font-bold tracking-tight md:text-5xl">
                                     Momen spesial, dimulai dari pilihan yang
                                     tepat.
                                 </h1>
@@ -147,10 +177,22 @@ export default function Welcome({
                                     </span>
                                 </div>
                             </div>
+                            <div className="relative hidden min-h-72 items-center justify-center lg:flex">
+                                <span
+                                    aria-hidden="true"
+                                    className="absolute size-64 rounded-full bg-white/10 blur-3xl"
+                                />
+                                <img
+                                    src="/images/mascot.png"
+                                    alt="Maskot Vendoria menyambut Anda"
+                                    className="relative z-10 w-full max-w-[280px] object-contain drop-shadow-[0_18px_28px_rgba(0,30,90,0.28)]"
+                                    fetchPriority="high"
+                                />
+                            </div>
                             <form
                                 action={vendorsIndex.url()}
                                 method="get"
-                                className="my-auto grid gap-4 rounded-3xl border border-white/70 bg-card p-6 text-card-foreground shadow-2xl shadow-brand-950/20 md:p-8"
+                                className="my-auto grid gap-4 rounded-2xl border border-white/70 bg-card p-5 text-card-foreground shadow-2xl shadow-brand-950/20 md:p-6"
                                 aria-label="Cari layanan vendor"
                             >
                                 <div className="space-y-2">
@@ -207,63 +249,92 @@ export default function Welcome({
                         </div>
                     </section>
 
-                    <section className="mx-auto max-w-7xl space-y-7 px-5 py-16">
-                        <div className="flex flex-wrap items-end justify-between gap-4">
-                            <div>
-                                <p className="text-sm font-bold tracking-wide text-primary">
-                                    JELAJAHI KATEGORI
+                    <section className="bg-[#f7f8ff]">
+                        <div className="mx-auto max-w-7xl space-y-5 px-5 py-10">
+                            <div className="flex flex-wrap items-end justify-between gap-4">
+                                <div>
+                                    <p className="text-xs font-bold tracking-wide text-primary">
+                                        JELAJAHI KATEGORI
+                                    </p>
+                                    <h2 className="mt-1 text-xl font-bold tracking-tight">
+                                        Apa yang sedang kamu cari?
+                                    </h2>
+                                </div>
+                                <Link
+                                    href={vendorsIndex()}
+                                    className="group inline-flex items-center gap-1 text-sm font-bold text-primary"
+                                >
+                                    Lihat semua layanan{' '}
+                                    <ArrowUpRight className="size-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                </Link>
+                            </div>
+                            {categories.length === 0 ? (
+                                <p className="rounded-2xl border border-dashed bg-card/60 p-8 text-center text-muted-foreground">
+                                    Kategori layanan akan segera tersedia.
                                 </p>
-                                <h2 className="mt-2 text-3xl font-bold tracking-tight">
-                                    Apa yang sedang kamu cari?
-                                </h2>
-                            </div>
-                            <Link
-                                href={vendorsIndex()}
-                                className="group inline-flex items-center gap-1 text-sm font-bold text-primary"
-                            >
-                                Lihat semua layanan{' '}
-                                <ArrowUpRight className="size-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                            </Link>
-                        </div>
-                        {categories.length === 0 ? (
-                            <p className="rounded-2xl border border-dashed bg-card/60 p-8 text-center text-muted-foreground">
-                                Kategori layanan akan segera tersedia.
-                            </p>
-                        ) : (
-                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-                                {categories.map((category, index) => {
-                                    const accents = [
-                                        'bg-brand-100 text-brand-800 ring-brand-200',
-                                        'bg-accent-50 text-accent-ink ring-accent-500/20',
-                                        'bg-amber-100 text-amber-800 ring-amber-200',
-                                        'bg-teal-100 text-teal-700 ring-teal-200',
-                                        'bg-sky-100 text-sky-700 ring-sky-200',
-                                    ];
+                            ) : (
+                                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                    {categories.map((category, index) => {
+                                        const categoryIcons = [
+                                            Utensils,
+                                            Flower2,
+                                            Music2,
+                                            Camera,
+                                            MicVocal,
+                                            TentTree,
+                                            Printer,
+                                            Bus,
+                                            Building2,
+                                        ];
+                                        const iconColors = [
+                                            'bg-amber-100 text-amber-600',
+                                            'bg-rose-100 text-rose-600',
+                                            'bg-blue-100 text-blue-600',
+                                            'bg-teal-100 text-teal-600',
+                                            'bg-violet-100 text-violet-600',
+                                            'bg-cyan-100 text-cyan-600',
+                                            'bg-orange-100 text-orange-600',
+                                            'bg-orange-100 text-orange-600',
+                                            'bg-emerald-100 text-emerald-700',
+                                        ];
+                                        const CategoryIcon =
+                                            categoryIcons[
+                                                index % categoryIcons.length
+                                            ];
 
-                                    return (
-                                        <Link
-                                            key={category.id}
-                                            href={vendorsIndex({
-                                                query: {
-                                                    category: category.slug,
-                                                },
-                                            })}
-                                            className="group rounded-2xl border border-border/70 bg-card p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
-                                        >
-                                            <span
-                                                className={`mb-4 flex size-12 items-center justify-center rounded-2xl font-bold ring-1 transition group-hover:rotate-3 ${accents[index % accents.length]}`}
-                                                aria-hidden="true"
+                                        return (
+                                            <Link
+                                                key={category.id}
+                                                href={vendorsIndex({
+                                                    query: {
+                                                        category: category.slug,
+                                                    },
+                                                })}
+                                                className="group flex min-h-16 items-center gap-3 rounded-xl border border-slate-100 bg-white px-3 py-2 shadow-sm transition-shadow duration-200 hover:border-primary/30 hover:shadow-md active:scale-[0.99]"
                                             >
-                                                {category.name.slice(0, 1)}
-                                            </span>
-                                            <span className="font-semibold">
-                                                {category.name}
-                                            </span>
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        )}
+                                                <span
+                                                    className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${iconColors[index % iconColors.length]}`}
+                                                    aria-hidden="true"
+                                                >
+                                                    <CategoryIcon className="size-4" />
+                                                </span>
+                                                <span className="grid gap-0.5">
+                                                    <span className="text-sm leading-tight font-semibold">
+                                                        {category.name}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {category.vendor_count
+                                                            ? `${category.vendor_count}+ vendor`
+                                                            : 'Belum ada vendor'}
+                                                    </span>
+                                                </span>
+                                                <ArrowUpRight className="ml-auto size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
                     </section>
 
                     <section className="border-y border-primary/10 bg-gradient-to-br from-brand-50/80 via-background to-teal-50/60">

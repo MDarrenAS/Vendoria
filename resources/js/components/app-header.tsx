@@ -1,11 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
 import {
     Bell,
     CalendarDays,
     ClipboardList,
     LayoutGrid,
-    Menu,
     Search,
     Star,
     Store,
@@ -21,19 +19,6 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-    NavigationMenu,
-    NavigationMenuItem,
-    NavigationMenuList,
-    navigationMenuTriggerStyle,
-} from '@/components/ui/navigation-menu';
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from '@/components/ui/sheet';
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
@@ -62,7 +47,7 @@ type Props = {
 };
 
 const activeItemStyles =
-    'bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary';
+    'bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-primary dark:text-primary-foreground';
 
 export function AppHeader({ breadcrumbs = [] }: Props) {
     const page = usePage();
@@ -179,7 +164,6 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     const homeHref = auth.user?.role === 'vendor' ? vendorDashboard() : home();
     const getInitials = useInitials();
     const { isCurrentOrParentUrl, isCurrentUrl } = useCurrentUrl();
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const isNavItemActive = (item: NavItem): boolean => {
         const isTopLevelDestination = [
             'Beranda',
@@ -196,184 +180,129 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     return (
         <>
             <div className="sticky top-0 z-40 border-b border-primary/10 bg-card/90 shadow-sm backdrop-blur-xl">
-                <div className="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
-                    {/* Mobile Menu */}
-                    <div className="xl:hidden">
-                        <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                            <SheetTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="mr-2 h-[34px] w-[34px]"
-                                    aria-label="Buka menu navigasi"
+                <div className="mx-auto max-w-7xl px-4">
+                    <div className="flex h-14 items-center gap-4">
+                        <Link
+                            href={homeHref}
+                            prefetch
+                            className="flex shrink-0 items-center"
+                        >
+                            <AppLogo />
+                        </Link>
+
+                        <nav
+                            aria-label="Navigasi utama"
+                            className="hidden min-w-0 items-center gap-1 overflow-x-auto lg:flex"
+                        >
+                            {mainNavItems.map((item) => (
+                                <Link
+                                    key={item.title}
+                                    href={item.href}
+                                    aria-current={
+                                        isNavItemActive(item)
+                                            ? 'page'
+                                            : undefined
+                                    }
+                                    className={cn(
+                                        'inline-flex h-9 shrink-0 items-center rounded-full px-3 text-xs font-medium transition-colors hover:bg-accent hover:text-accent-foreground',
+                                        isNavItemActive(item) &&
+                                            activeItemStyles,
+                                    )}
                                 >
-                                    <Menu className="h-5 w-5" />
-                                </Button>
-                            </SheetTrigger>
-                            <SheetContent
-                                side="left"
-                                className="flex h-full w-64 flex-col items-stretch justify-between bg-sidebar"
-                            >
-                                <SheetTitle className="sr-only">
-                                    Menu navigasi
-                                </SheetTitle>
-                                <SheetHeader className="flex justify-start text-left">
-                                    <img
-                                        src="/images/VendoriaLogo.png"
-                                        alt="Logo Vendoria"
-                                        className="h-9 w-auto object-contain"
-                                    />
-                                </SheetHeader>
-                                <nav
-                                    aria-label="Navigasi utama"
-                                    className="flex flex-1 flex-col gap-2 p-4 text-sm"
-                                >
-                                    {mainNavItems.map((item) => {
-                                        const isActive = isNavItemActive(item);
+                                    {item.title}
+                                </Link>
+                            ))}
+                        </nav>
 
-                                        return (
-                                            <Link
-                                                key={item.title}
-                                                href={item.href}
-                                                aria-current={
-                                                    isActive
-                                                        ? 'page'
-                                                        : undefined
-                                                }
-                                                onClick={() =>
-                                                    setIsMenuOpen(false)
-                                                }
-                                                className={cn(
-                                                    'flex min-h-11 items-center gap-3 rounded-xl px-3 font-medium transition-colors hover:bg-accent hover:text-accent-foreground',
-                                                    isActive &&
-                                                        activeItemStyles,
-                                                )}
-                                            >
-                                                {item.icon && (
-                                                    <item.icon className="size-5" />
-                                                )}
-                                                <span>{item.title}</span>
-                                            </Link>
-                                        );
-                                    })}
-                                </nav>
-                            </SheetContent>
-                        </Sheet>
-                    </div>
-
-                    <Link
-                        href={homeHref}
-                        prefetch
-                        className="flex items-center space-x-2"
-                    >
-                        <AppLogo />
-                    </Link>
-
-                    {/* Desktop Navigation */}
-                    <nav
-                        aria-label="Navigasi utama"
-                        className="ml-6 hidden h-full items-center space-x-6 xl:flex"
-                    >
-                        <NavigationMenu className="flex h-full items-stretch">
-                            <NavigationMenuList className="flex h-full items-stretch space-x-2">
-                                {mainNavItems.map((item) => (
-                                    <NavigationMenuItem
-                                        key={item.title}
-                                        className="relative flex h-full items-center"
+                        <div className="ml-auto flex shrink-0 items-center gap-2">
+                            {!auth.user && (
+                                <>
+                                    <Link
+                                        href={login()}
+                                        className="rounded-full px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
                                     >
-                                        <Link
-                                            href={item.href}
-                                            className={cn(
-                                                navigationMenuTriggerStyle(),
-                                                isNavItemActive(item) &&
-                                                    activeItemStyles,
-                                                'h-9 cursor-pointer px-3',
-                                            )}
-                                            aria-current={
-                                                isNavItemActive(item)
-                                                    ? 'page'
-                                                    : undefined
-                                            }
+                                        Masuk
+                                    </Link>
+                                    <Link
+                                        href={register()}
+                                        className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+                                    >
+                                        Daftar
+                                    </Link>
+                                </>
+                            )}
+                            {auth.user && (
+                                <Link
+                                    href={notificationsIndex()}
+                                    aria-label={`Notifikasi${page.props.unreadNotificationCount ? `, ${page.props.unreadNotificationCount} belum dibaca` : ''}`}
+                                    className="relative inline-flex size-10 items-center justify-center rounded-full hover:bg-muted"
+                                >
+                                    <Bell className="size-5" />
+                                    {page.props.unreadNotificationCount > 0 && (
+                                        <span className="absolute top-1 right-1 inline-flex min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] leading-4 text-destructive-foreground">
+                                            {page.props
+                                                .unreadNotificationCount > 99
+                                                ? '99+'
+                                                : page.props
+                                                      .unreadNotificationCount}
+                                        </span>
+                                    )}
+                                </Link>
+                            )}
+                            {auth.user && (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            className="size-10 rounded-full p-1"
                                         >
-                                            {item.icon && (
-                                                <item.icon className="mr-2 h-4 w-4" />
-                                            )}
-                                            {item.title}
-                                        </Link>
-                                        {isNavItemActive(item) && (
-                                            <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-black dark:bg-white"></div>
-                                        )}
-                                    </NavigationMenuItem>
-                                ))}
-                            </NavigationMenuList>
-                        </NavigationMenu>
-                    </nav>
-
-                    <div className="ml-auto flex items-center space-x-2">
-                        {!auth.user && (
-                            <>
-                                <Link
-                                    href={login()}
-                                    className="rounded-full px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                                >
-                                    Masuk
-                                </Link>
-                                <Link
-                                    href={register()}
-                                    className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
-                                >
-                                    Daftar
-                                </Link>
-                            </>
-                        )}
-                        {auth.user && (
-                            <Link
-                                href={notificationsIndex()}
-                                aria-label={`Notifikasi${page.props.unreadNotificationCount ? `, ${page.props.unreadNotificationCount} belum dibaca` : ''}`}
-                                className="relative inline-flex size-10 items-center justify-center rounded-full hover:bg-muted"
-                            >
-                                <Bell className="size-5" />
-                                {page.props.unreadNotificationCount > 0 && (
-                                    <span className="absolute top-1 right-1 inline-flex min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] leading-4 text-destructive-foreground">
-                                        {page.props.unreadNotificationCount > 99
-                                            ? '99+'
-                                            : page.props
-                                                  .unreadNotificationCount}
-                                    </span>
-                                )}
-                            </Link>
-                        )}
-                        {auth.user && (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        className="size-10 rounded-full p-1"
+                                            <Avatar className="size-8 overflow-hidden rounded-full">
+                                                <AvatarImage
+                                                    src={
+                                                        auth.user.avatar_url ??
+                                                        undefined
+                                                    }
+                                                    alt={auth.user.name}
+                                                />
+                                                <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                                    {getInitials(
+                                                        auth.user.name,
+                                                    )}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent
+                                        className="w-56"
+                                        align="end"
                                     >
-                                        <Avatar className="size-8 overflow-hidden rounded-full">
-                                            <AvatarImage
-                                                src={
-                                                    auth.user.avatar_url ??
-                                                    undefined
-                                                }
-                                                alt={auth.user.name}
-                                            />
-                                            <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                                                {getInitials(auth.user.name)}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    className="w-56"
-                                    align="end"
-                                >
-                                    <UserMenuContent user={auth.user} />
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        )}
+                                        <UserMenuContent user={auth.user} />
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            )}
+                        </div>
                     </div>
                 </div>
+                <nav
+                    aria-label="Navigasi utama"
+                    className="flex items-center gap-1 overflow-x-auto border-t border-border/60 px-4 py-2 lg:hidden"
+                >
+                    {mainNavItems.map((item) => (
+                        <Link
+                            key={item.title}
+                            href={item.href}
+                            aria-current={
+                                isNavItemActive(item) ? 'page' : undefined
+                            }
+                            className={cn(
+                                'inline-flex h-9 shrink-0 items-center rounded-full px-3 text-xs font-medium transition-colors hover:bg-accent hover:text-accent-foreground',
+                                isNavItemActive(item) && activeItemStyles,
+                            )}
+                        >
+                            {item.title}
+                        </Link>
+                    ))}
+                </nav>
             </div>
             {breadcrumbs.length > 1 && (
                 <div className="flex w-full border-b border-sidebar-border/70">
