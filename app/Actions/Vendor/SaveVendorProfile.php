@@ -7,7 +7,7 @@ use App\Models\VendorProfile;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use RuntimeException;
+use Illuminate\Validation\ValidationException;
 
 class SaveVendorProfile
 {
@@ -31,10 +31,18 @@ class SaveVendorProfile
                 continue;
             }
 
-            $path = $data[$imageField]->storePublicly('vendors/'.$user->id, 's3');
+            try {
+                $path = $data[$imageField]->storePublicly('vendors/'.$user->id, 's3');
+            } catch (\Throwable $exception) {
+                throw ValidationException::withMessages([
+                    $imageField => 'Gagal mengunggah foto ke penyimpanan cloud: '.$exception->getMessage(),
+                ]);
+            }
 
             if (! is_string($path)) {
-                throw new RuntimeException('Foto profil usaha gagal disimpan ke penyimpanan cloud.');
+                throw ValidationException::withMessages([
+                    $imageField => 'Foto profil usaha gagal disimpan ke penyimpanan cloud.',
+                ]);
             }
 
             $attributes[$imageField.'_path'] = $path;

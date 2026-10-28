@@ -137,10 +137,18 @@ class SaveVendorService
                     continue;
                 }
 
-                $path = $imageFile->storePublicly('services/'.$service->id, 's3');
+                try {
+                    $path = $imageFile->storePublicly('services/'.$service->id, 's3');
+                } catch (\Throwable $exception) {
+                    throw ValidationException::withMessages([
+                        'images' => 'Gagal mengunggah foto ke penyimpanan cloud: '.$exception->getMessage(),
+                    ]);
+                }
 
                 if (! is_string($path)) {
-                    throw new RuntimeException('Foto layanan gagal disimpan ke penyimpanan cloud.');
+                    throw ValidationException::withMessages([
+                        'images' => 'Foto layanan gagal disimpan ke penyimpanan cloud.',
+                    ]);
                 }
 
                 $service->images()->create([

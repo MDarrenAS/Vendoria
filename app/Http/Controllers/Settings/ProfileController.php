@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
-use RuntimeException;
 
 class ProfileController extends Controller
 {
@@ -38,10 +37,14 @@ class ProfileController extends Controller
         $oldAvatarPath = $user->avatar_path;
 
         if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->storePublicly('avatars/'.$user->id, 's3');
+            try {
+                $avatarPath = $request->file('avatar')->storePublicly('avatars/'.$user->id, 's3');
+            } catch (\Throwable $exception) {
+                return back()->withErrors(['avatar' => 'Gagal mengunggah foto profil ke penyimpanan cloud: '.$exception->getMessage()]);
+            }
 
             if (! is_string($avatarPath)) {
-                throw new RuntimeException('Foto profil gagal disimpan ke penyimpanan cloud.');
+                return back()->withErrors(['avatar' => 'Foto profil gagal disimpan ke penyimpanan cloud.']);
             }
 
             $data['avatar_path'] = $avatarPath;
