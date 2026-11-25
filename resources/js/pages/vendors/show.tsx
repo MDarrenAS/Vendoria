@@ -1,5 +1,8 @@
 import { Head, Link } from '@inertiajs/react';
 import { show as serviceShow } from '@/actions/App/Http/Controllers/Public/ServiceController';
+import AvailabilityCalendar, {
+    type PublicAvailabilityEntry,
+} from '@/components/availability-calendar';
 import type { Category, ServicePackage } from '@/types/marketplace';
 import {
     formatRupiah,
@@ -47,12 +50,14 @@ type Review = {
 export default function VendorShow({
     vendor,
     reviews,
+    availabilityDates = [],
 }: {
     vendor: Vendor;
     reviews: {
         data: Review[];
         links: Array<{ url: string | null; label: string; active: boolean }>;
     };
+    availabilityDates?: PublicAvailabilityEntry[];
 }) {
     return (
         <>
@@ -158,12 +163,37 @@ export default function VendorShow({
                         Tentang Kami
                     </a>
                     <a
+                        href="#ketersediaan"
+                        className="rounded-full px-4 py-2 text-sm font-medium hover:bg-card"
+                    >
+                        Ketersediaan
+                    </a>
+                    <a
                         href="#ulasan"
                         className="rounded-full px-4 py-2 text-sm font-medium hover:bg-card"
                     >
                         Ulasan & Testimoni
                     </a>
                 </nav>
+
+                <section
+                    id="ketersediaan"
+                    className="order-4 rounded-2xl border border-border/70 bg-card p-5 shadow-sm md:p-6"
+                >
+                    <div className="mb-4">
+                        <h2 className="text-xl font-semibold">
+                            Kalender Ketersediaan Vendor
+                        </h2>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Ketuk atau arahkan kursor ke tanggal untuk melihat
+                            ketersediaan {vendor.business_name}.
+                        </p>
+                    </div>
+                    <AvailabilityCalendar
+                        mode="public"
+                        entries={availabilityDates}
+                    />
+                </section>
 
                 <section id="ulasan" className="order-3 space-y-4">
                     <div>

@@ -9,6 +9,7 @@ use App\Models\OrderStatusHistory;
 use App\Models\Service;
 use App\Models\User;
 use App\Notifications\OrderCreated as OrderCreatedNotification;
+use App\Support\AdminFee;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
@@ -104,6 +105,7 @@ class CreateOrder
                 'notes' => $draft['notes'] ?? null,
                 'extras' => $draft['extras'] ?? null,
                 'price_estimate' => $pricing['total'],
+                'admin_fee' => AdminFee::calculate($pricing['total']),
                 'status' => OrderStatus::Pending,
             ]);
 

@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderStatusHistory;
 use App\Models\User;
 use App\Notifications\OrderStatusChanged;
+use App\Support\AdminFee;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -76,6 +77,7 @@ class ChangeOrderStatus
                 }
 
                 $attributes['price_final'] = $details['price_final'];
+                $attributes['admin_fee'] = AdminFee::calculate($details['price_final']);
                 $attributes['price_note'] = $details['price_note'] ?? null;
                 $attributes['confirmed_at'] = now();
                 $note = $details['price_note'] ?? null;

@@ -38,6 +38,8 @@ type Order = {
     extras: Record<string, string> | null;
     price_estimate: string;
     price_final: string | null;
+    admin_fee: string;
+    total_payable: string;
     price_note: string | null;
     vendor_note: string | null;
     cancel_reason: string | null;
@@ -115,12 +117,16 @@ export default function CustomerOrderShow({
     initialMessages,
     currentUserId,
     canSendMessages,
+    adminFeeLabel = '3%',
 }: {
     order: Order;
     initialMessages: OrderChatMessage[];
     currentUserId: number;
     canSendMessages: boolean;
+    adminFeeLabel?: string;
 }) {
+    const serviceAmount = order.price_final ?? order.price_estimate;
+    const totalPayable = order.total_payable;
     const form = useForm({ cancel_reason: '' });
     const paymentForm = useForm({
         payment_method: order.payment_method ?? 'bca',
@@ -307,11 +313,29 @@ export default function CustomerOrderShow({
                                 <dd>{formatRupiah(order.price_estimate)}</dd>
                             </div>
                             {order.price_final && (
-                                <div className="flex justify-between gap-4 border-t border-border pt-3 text-base font-bold text-primary">
-                                    <dt>Harga final</dt>
-                                    <dd>{formatRupiah(order.price_final)}</dd>
+                                <div className="flex justify-between gap-4 border-t border-border pt-3">
+                                    <dt className="text-muted-foreground">
+                                        Harga layanan
+                                    </dt>
+                                    <dd className="font-medium">
+                                        {formatRupiah(order.price_final)}
+                                    </dd>
                                 </div>
                             )}
+                            <div className="flex justify-between gap-4">
+                                <dt className="text-muted-foreground">
+                                    Biaya admin ({adminFeeLabel})
+                                </dt>
+                                <dd>{formatRupiah(order.admin_fee)}</dd>
+                            </div>
+                            <div className="flex justify-between gap-4 border-t border-border pt-3 text-base font-bold text-primary">
+                                <dt>
+                                    {order.price_final
+                                        ? 'Total pembayaran'
+                                        : 'Estimasi total pembayaran'}
+                                </dt>
+                                <dd>{formatRupiah(totalPayable)}</dd>
+                            </div>
                             {order.price_note && (
                                 <div>
                                     <dt className="text-muted-foreground">
@@ -428,15 +452,33 @@ export default function CustomerOrderShow({
                         </span>
                     </div>
                     <div className="mt-4 grid gap-4 rounded-xl bg-indigo-50/80 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-5">
-                        <div>
-                            <p className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
-                                Total tagihan
-                            </p>
-                            <p className="mt-1 text-2xl font-bold tracking-wide text-primary">
-                                {formatRupiah(
-                                    order.price_final ?? order.price_estimate,
-                                )}
-                            </p>
+                        <div className="space-y-2">
+                            <dl className="grid gap-1.5 text-sm">
+                                <div className="flex justify-between gap-6">
+                                    <dt className="text-muted-foreground">
+                                        Harga layanan
+                                    </dt>
+                                    <dd className="font-medium text-foreground">
+                                        {formatRupiah(serviceAmount)}
+                                    </dd>
+                                </div>
+                                <div className="flex justify-between gap-6">
+                                    <dt className="text-muted-foreground">
+                                        Biaya admin ({adminFeeLabel})
+                                    </dt>
+                                    <dd className="font-medium text-foreground">
+                                        {formatRupiah(order.admin_fee)}
+                                    </dd>
+                                </div>
+                                <div className="flex justify-between gap-6 border-t border-indigo-200/80 pt-2">
+                                    <dt className="font-semibold text-foreground">
+                                        Total pembayaran
+                                    </dt>
+                                    <dd className="text-xl font-bold tracking-wide text-primary">
+                                        {formatRupiah(totalPayable)}
+                                    </dd>
+                                </div>
+                            </dl>
                         </div>
                         <div className="rounded-lg border border-indigo-100 bg-white/80 px-3 py-2 text-xs text-muted-foreground sm:text-right">
                             <p>
@@ -546,16 +588,13 @@ export default function CustomerOrderShow({
                                     </div>
                                     <div className="shrink-0 text-left sm:text-right">
                                         <p className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
-                                            Total tagihan
+                                            Total pembayaran
                                         </p>
                                         <p className="mt-1 text-2xl font-bold text-primary">
-                                            {formatRupiah(
-                                                order.price_final ??
-                                                    order.price_estimate,
-                                            )}
+                                            {formatRupiah(totalPayable)}
                                         </p>
                                         <span className="mt-1 inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
-                                            Nomor VA sesuai bank pilihan
+                                            Sudah termasuk biaya admin ({adminFeeLabel})
                                         </span>
                                     </div>
                                 </div>
@@ -678,9 +717,7 @@ export default function CustomerOrderShow({
                     {canPay && (
                         <PaymentInstructions
                             accountNumber={virtualAccountNumber}
-                            amount={formatRupiah(
-                                order.price_final ?? order.price_estimate,
-                            )}
+                            amount={formatRupiah(totalPayable)}
                             bankName={selectedPaymentMethod.name}
                         />
                     )}

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\VendorProfile;
+use App\Support\VendorAvailability;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -33,6 +34,7 @@ class VendorController extends Controller
         return Inertia::render('vendors/show', [
             'vendor' => $vendor->makeHidden(['whatsapp_number', 'contact_email', 'user_id']),
             'reviews' => $reviews,
+            'availabilityDates' => VendorAvailability::publicDatesFor($vendor),
         ]);
     }
 }

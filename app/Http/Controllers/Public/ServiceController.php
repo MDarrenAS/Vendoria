@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Service;
+use App\Support\VendorAvailability;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,7 +27,6 @@ class ServiceController extends Controller
             'category:id,name,slug',
             'packages' => fn ($query) => $query->where('is_active', true)->orderBy('sort_order'),
             'images:id,service_id,path,caption,is_cover,sort_order',
-            'vendorProfile.blockedDates' => fn ($query) => $query->whereDate('date', '>=', today())->orderBy('date'),
         ]);
         $reviews = $service->reviews()
             ->where('is_visible', true)
@@ -39,6 +39,7 @@ class ServiceController extends Controller
             'service' => $service,
             'reviews' => $reviews,
             'extraFields' => config('vendoria.category_extra_fields.'.$service->category->slug, []),
+            'availabilityDates' => VendorAvailability::publicDatesFor($service->vendorProfile),
         ]);
     }
 }

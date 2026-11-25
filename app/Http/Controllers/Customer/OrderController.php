@@ -13,6 +13,7 @@ use App\Http\Requests\Customer\CancelOrderRequest;
 use App\Http\Requests\Customer\ConfirmOrderPaymentRequest;
 use App\Models\Order;
 use App\Models\OrderMessage;
+use App\Support\AdminFee;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -91,6 +92,7 @@ class OrderController extends Controller
                 OrderStatus::Rejected,
                 OrderStatus::Cancelled,
             ], true),
+            'adminFeeLabel' => AdminFee::ratePercentLabel(),
         ]);
     }
 

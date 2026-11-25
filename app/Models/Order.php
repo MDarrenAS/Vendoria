@@ -20,13 +20,15 @@ class Order extends Model
         'service_id', 'package_id', 'service_name_snapshot', 'package_name_snapshot',
         'unit_price_snapshot', 'event_name', 'event_date', 'event_location',
         'event_city', 'contact_name', 'contact_phone', 'quantity', 'notes',
-        'extras', 'price_estimate', 'price_final', 'price_note', 'status',
+        'extras', 'price_estimate', 'price_final', 'admin_fee', 'price_note', 'status',
         'payment_status', 'paid_at', 'payment_method',
         'vendor_note', 'cancel_reason', 'confirmed_at', 'completed_at',
         'cancelled_at', 'rejected_at',
     ];
 
     protected $hidden = ['idempotency_key'];
+
+    protected $appends = ['total_payable'];
 
     protected function casts(): array
     {
@@ -37,6 +39,7 @@ class Order extends Model
             'unit_price_snapshot' => 'decimal:2',
             'price_estimate' => 'decimal:2',
             'price_final' => 'decimal:2',
+            'admin_fee' => 'decimal:2',
             'status' => OrderStatus::class,
             'paid_at' => 'datetime',
             'confirmed_at' => 'datetime',
@@ -44,6 +47,14 @@ class Order extends Model
             'cancelled_at' => 'datetime',
             'rejected_at' => 'datetime',
         ];
+    }
+
+    public function getTotalPayableAttribute(): string
+    {
+        $base = (float) ($this->price_final ?? $this->price_estimate ?? 0);
+        $fee = (float) ($this->admin_fee ?? 0);
+
+        return number_format(round($base + $fee, 0, PHP_ROUND_HALF_UP), 2, '.', '');
     }
 
     public function getRouteKeyName(): string

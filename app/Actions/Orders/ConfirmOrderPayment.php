@@ -5,6 +5,7 @@ namespace App\Actions\Orders;
 use App\Models\Order;
 use App\Models\User;
 use App\Notifications\OrderPaymentConfirmed;
+use App\Support\AdminFee;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
@@ -21,10 +22,16 @@ class ConfirmOrderPayment
                 return $order;
             }
 
+            $baseAmount = $order->price_final ?? $order->price_estimate;
+            $adminFee = (float) $order->admin_fee > 0
+                ? $order->admin_fee
+                : AdminFee::calculate($baseAmount);
+
             $order->forceFill([
                 'payment_status' => 'paid',
                 'paid_at' => now(),
                 'payment_method' => $paymentMethod,
+                'admin_fee' => $adminFee,
             ])->save();
 
             $order->loadMissing('vendorProfile.user');

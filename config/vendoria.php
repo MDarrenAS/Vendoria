@@ -38,6 +38,7 @@ return [
 
     'business' => [
         'draft_expiry_hours' => 24,
+        'admin_fee_rate' => (float) env('ADMIN_FEE_RATE', 0.03),
     ],
 
     'admin' => [

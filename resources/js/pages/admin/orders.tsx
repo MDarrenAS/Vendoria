@@ -1,6 +1,7 @@
 import { Form, Head } from '@inertiajs/react';
 import AdminShell, { AdminPagination, type PaginationLink } from '@/components/admin-shell';
 import orders from '@/routes/admin/orders';
+import { formatRupiah } from '@/types/marketplace';
 
 type Order = {
     order_number: string;
@@ -8,6 +9,8 @@ type Order = {
     event_date: string;
     price_estimate: string;
     price_final: string | null;
+    admin_fee: string;
+    payment_status: string;
     status: string;
     customer: { name: string; email: string };
     vendor_profile: { business_name: string };
@@ -41,7 +44,7 @@ export default function AdminOrders({ orders: page, filters, statuses }: {
                 ) : (
                     <div className="overflow-x-auto rounded-xl border bg-card">
                         <table className="w-full min-w-[720px] text-left text-sm">
-                            <thead className="bg-muted/50 text-muted-foreground"><tr><th className="p-3">Nomor</th><th className="p-3">Customer</th><th className="p-3">Vendor</th><th className="p-3">Acara</th><th className="p-3">Tanggal</th><th className="p-3">Status</th></tr></thead>
+                            <thead className="bg-muted/50 text-muted-foreground"><tr><th className="p-3">Nomor</th><th className="p-3">Customer</th><th className="p-3">Vendor</th><th className="p-3">Acara</th><th className="p-3">Tanggal</th><th className="p-3">Nilai Layanan</th><th className="p-3">Biaya Admin</th><th className="p-3">Status</th></tr></thead>
                             <tbody>
                                 {page.data.map((order) => (
                                     <tr key={order.order_number} className="border-t">
@@ -50,6 +53,8 @@ export default function AdminOrders({ orders: page, filters, statuses }: {
                                         <td className="p-3">{order.vendor_profile.business_name}</td>
                                         <td className="p-3">{order.event_name}</td>
                                         <td className="p-3">{new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeZone: 'Asia/Jakarta' }).format(new Date(`${order.event_date.slice(0, 10)}T12:00:00`))}</td>
+                                        <td className="p-3">{formatRupiah(order.price_final ?? order.price_estimate)}</td>
+                                        <td className="p-3 font-medium text-emerald-700">{formatRupiah(order.admin_fee)}<span className="block text-xs text-muted-foreground">{order.payment_status === 'paid' ? 'Lunas' : 'Belum bayar'}</span></td>
                                         <td className="p-3">{statuses.find(({ value }) => value === order.status)?.label ?? order.status}</td>
                                     </tr>
                                 ))}

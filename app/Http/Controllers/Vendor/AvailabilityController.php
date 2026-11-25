@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\StoreAvailabilityRequest;
 use App\Models\Order;
 use App\Models\VendorBlockedDate;
+use App\Support\VendorAvailability;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,6 +27,7 @@ class AvailabilityController extends Controller
                 ->whereIn('status', [OrderStatus::Confirmed, OrderStatus::InProgress])
                 ->orderBy('event_date')
                 ->get(['order_number', 'event_date', 'status']),
+            'calendarDates' => VendorAvailability::vendorDatesFor($vendorProfile),
         ]);
     }
 

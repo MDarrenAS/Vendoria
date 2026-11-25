@@ -1,6 +1,9 @@
 import { Head, Link } from '@inertiajs/react';
 import { CalendarDays, CircleCheck, ShieldCheck } from 'lucide-react';
 import { show as vendorShow } from '@/actions/App/Http/Controllers/Public/VendorController';
+import AvailabilityCalendar, {
+    type PublicAvailabilityEntry,
+} from '@/components/availability-calendar';
 import type { ServicePackage } from '@/types/marketplace';
 import {
     formatRupiah,
@@ -29,7 +32,6 @@ type ServiceDetail = {
         is_verified: boolean;
         rating_avg: string;
         rating_count: number;
-        blocked_dates: Array<{ date: string }>;
     };
     category: { name: string; slug: string };
     packages: ServicePackage[];
@@ -44,6 +46,7 @@ type ServiceDetail = {
 export default function ServiceShow({
     service,
     reviews,
+    availabilityDates = [],
 }: {
     service: ServiceDetail;
     reviews: {
@@ -57,6 +60,7 @@ export default function ServiceShow({
         links: Array<{ url: string | null; label: string; active: boolean }>;
     };
     extraFields: Array<{ name: string; label: string; type: string }>;
+    availabilityDates?: PublicAvailabilityEntry[];
 }) {
     return (
         <>
@@ -264,7 +268,7 @@ export default function ServiceShow({
                     )}
 
                     <article className="rounded-2xl border border-border/70 bg-white p-5 shadow-sm">
-                        <div className="mb-3 flex items-center gap-3">
+                        <div className="mb-4 flex items-center gap-3">
                             <span className="flex size-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                                 <CalendarDays className="size-5" />
                             </span>
@@ -273,36 +277,16 @@ export default function ServiceShow({
                                     Ketersediaan Tanggal
                                 </h2>
                                 <p className="text-xs text-muted-foreground">
-                                    Pemantauan otomatis sistem Vendoria
+                                    Ketuk atau arahkan kursor ke tanggal untuk
+                                    melihat status ketersediaan
                                 </p>
                             </div>
                         </div>
-                        {service.vendor_profile.blocked_dates.length ? (
-                            <ul className="flex flex-wrap gap-2 rounded-xl bg-emerald-50/70 p-4">
-                                {service.vendor_profile.blocked_dates.map(
-                                    ({ date }) => (
-                                        <li
-                                            key={date}
-                                            className="rounded-full bg-white px-3 py-2 text-sm"
-                                        >
-                                            {new Intl.DateTimeFormat('id-ID', {
-                                                dateStyle: 'long',
-                                                timeZone: 'Asia/Jakarta',
-                                            }).format(
-                                                new Date(`${date}T12:00:00`),
-                                            )}
-                                        </li>
-                                    ),
-                                )}
-                            </ul>
-                        ) : (
-                            <p className="flex items-start gap-2 rounded-xl bg-emerald-50/70 p-4 text-sm leading-6 text-muted-foreground">
-                                <CircleCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" />
-                                Belum ada tanggal yang ditandai penuh oleh
-                                vendor ini. Silakan pilih dan cantumkan tanggal
-                                yang Anda kehendaki saat proses checkout.
-                            </p>
-                        )}
+                        <AvailabilityCalendar
+                            mode="public"
+                            entries={availabilityDates}
+                            requestDateHref={`/order/create?service=${service.id}`}
+                        />
                     </article>
                 </section>
                 <section className="space-y-4">
