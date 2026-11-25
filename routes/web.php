@@ -10,6 +10,7 @@ use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\OrderDraftController;
 use App\Http\Controllers\Customer\ReviewController as CustomerReviewController;
+use App\Http\Controllers\OrderAttachmentController;
 use App\Http\Controllers\OrderMessageController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\ServiceController;
@@ -30,6 +31,9 @@ Route::get('/vendors/{vendor:slug}', [VendorController::class, 'show'])->name('v
 Route::get('/services/{service:slug}', [ServiceController::class, 'show'])->name('services.show');
 Route::get('/order/create', [OrderDraftController::class, 'create'])->name('order.create');
 Route::post('/order/draft', [OrderDraftController::class, 'store'])->middleware('throttle:orders')->name('order.draft');
+Route::post('/order/draft/attachments', [OrderAttachmentController::class, 'storeDraft'])->middleware('throttle:orders')->name('order.draft.attachments.store');
+Route::get('/order/draft/attachments/{tempId}', [OrderAttachmentController::class, 'previewDraft'])->name('order.draft.attachments.preview');
+Route::delete('/order/draft/attachments/{tempId}', [OrderAttachmentController::class, 'destroyDraft'])->name('order.draft.attachments.destroy');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/order/review', [OrderDraftController::class, 'review'])->name('order.review');
@@ -55,6 +59,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/orders/{order:order_number}/review', [CustomerReviewController::class, 'store'])
         ->middleware('role:customer')
         ->name('orders.review.store');
+    Route::post('/orders/{order:order_number}/attachments', [OrderAttachmentController::class, 'store'])
+        ->middleware('role:customer')
+        ->name('orders.attachments.store');
+    Route::delete('/orders/{order:order_number}/attachments/{attachment}', [OrderAttachmentController::class, 'destroy'])
+        ->middleware('role:customer')
+        ->name('orders.attachments.destroy');
+    Route::get('/orders/{order:order_number}/attachments/{attachment}', [OrderAttachmentController::class, 'show'])
+        ->name('orders.attachments.show');
+    Route::get('/orders/{order:order_number}/attachments-zip', [OrderAttachmentController::class, 'downloadZip'])
+        ->name('orders.attachments.zip');
+    Route::post('/orders/{order:order_number}/attachments/request', [OrderAttachmentController::class, 'requestAttachment'])
+        ->middleware('role:vendor')
+        ->name('orders.attachments.request');
     Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications.index');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'read'])

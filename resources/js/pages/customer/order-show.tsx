@@ -17,6 +17,10 @@ import { store as storeReview } from '@/actions/App/Http/Controllers/Customer/Re
 import CategoryOrderDetails, {
     type ExtraField,
 } from '@/components/orders/category-order-details';
+import type { AttachmentSlot } from '@/components/orders/order-attachment-uploader';
+import OrderAttachmentsPanel, {
+    type OrderAttachmentItem,
+} from '@/components/orders/order-attachments-panel';
 import OrderChat, { type OrderChatMessage } from '@/components/order-chat';
 import OrderLiveUpdates from '@/components/order-live-updates';
 import {
@@ -125,6 +129,8 @@ export default function CustomerOrderShow({
     categoryName,
     quantityLabel,
     extraFields = [],
+    attachmentSlots = [],
+    attachments = [],
 }: {
     order: Order;
     initialMessages: OrderChatMessage[];
@@ -135,6 +141,8 @@ export default function CustomerOrderShow({
     categoryName?: string | null;
     quantityLabel?: string;
     extraFields?: ExtraField[];
+    attachmentSlots?: AttachmentSlot[];
+    attachments?: OrderAttachmentItem[];
 }) {
     const serviceAmount = order.price_final ?? order.price_estimate;
     const totalPayable = order.total_payable;
@@ -292,6 +300,15 @@ export default function CustomerOrderShow({
                             extraFields={extraFields}
                         />
                     </div>
+                    <OrderAttachmentsPanel
+                        orderNumber={order.order_number}
+                        slots={attachmentSlots}
+                        attachments={attachments}
+                        role="customer"
+                        currentUserId={currentUserId}
+                        canAddAttachments={canSendMessages}
+                        canDeleteAttachments={order.status === 'pending'}
+                    />
                     <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
                         <div className="flex items-center gap-3 border-b border-border/70 pb-4">
                             <span className="flex size-10 items-center justify-center rounded-xl bg-rose-100 text-rose-600">

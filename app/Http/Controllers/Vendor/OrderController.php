@@ -7,7 +7,9 @@ use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\ChangeOrderStatusRequest;
 use App\Models\Order;
+use App\Models\OrderAttachment;
 use App\Models\OrderMessage;
+use App\Support\OrderAttachments;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -57,6 +59,7 @@ class OrderController extends Controller
             'service:id,category_id,price_unit',
             'service.category:id,name,slug',
             'statusHistories.changedBy:id,name',
+            'attachments',
         ]);
 
         $dateConflict = Order::query()
@@ -84,7 +87,12 @@ class OrderController extends Controller
         $categorySlug = $order->service?->category?->slug;
         $categoryName = $order->service?->category?->name;
 
-        $order->makeHidden(['id', 'idempotency_key', 'customer_id', 'vendor_profile_id', 'service_id', 'package_id', 'service']);
+        $attachments = $order->attachments
+            ->map(fn (OrderAttachment $attachment): array => OrderAttachments::serialize($attachment, $order))
+            ->values()
+            ->all();
+
+        $order->makeHidden(['id', 'idempotency_key', 'customer_id', 'vendor_profile_id', 'service_id', 'package_id', 'service', 'attachments']);
         if ($order->payment_status !== 'paid') {
             $order->makeHidden('contact_phone');
         }
@@ -109,6 +117,8 @@ class OrderController extends Controller
             'categoryName' => $categoryName,
             'quantityLabel' => config('vendoria.category_quantity_labels.'.$categorySlug, 'Jumlah'),
             'extraFields' => config('vendoria.category_extra_fields.'.$categorySlug, []),
+            'attachmentSlots' => OrderAttachments::slotsForCategory($categorySlug),
+            'attachments' => $attachments,
         ]);
     }
 

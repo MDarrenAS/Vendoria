@@ -3,6 +3,10 @@ import { CalendarDays, Clock3, MapPin, ShieldCheck } from 'lucide-react';
 import CategoryOrderDetails, {
     type ExtraField,
 } from '@/components/orders/category-order-details';
+import type { AttachmentSlot } from '@/components/orders/order-attachment-uploader';
+import OrderAttachmentsPanel, {
+    type OrderAttachmentItem,
+} from '@/components/orders/order-attachments-panel';
 import OrderChat, { type OrderChatMessage } from '@/components/order-chat';
 import OrderLiveUpdates from '@/components/order-live-updates';
 import VendorShell from '@/components/vendor-shell';
@@ -56,6 +60,8 @@ type Props = {
     categoryName?: string | null;
     quantityLabel?: string;
     extraFields?: ExtraField[];
+    attachmentSlots?: AttachmentSlot[];
+    attachments?: OrderAttachmentItem[];
 };
 
 export default function VendorOrderShow({
@@ -69,6 +75,8 @@ export default function VendorOrderShow({
     categoryName,
     quantityLabel,
     extraFields = [],
+    attachmentSlots = [],
+    attachments = [],
 }: Props) {
     const changeUrl = vendorOrders.status(order.order_number);
     const statusLabel =
@@ -126,7 +134,8 @@ export default function VendorOrderShow({
                 )}
 
                 <section className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.9fr)]">
-                    <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+                    <div className="space-y-5">
+                        <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
                         <h3 className="border-b border-border/70 pb-4 text-lg font-semibold">
                             Detail acara
                         </h3>
@@ -180,6 +189,14 @@ export default function VendorOrderShow({
                                 />
                             </div>
                         )}
+                    </div>
+                    <OrderAttachmentsPanel
+                        orderNumber={order.order_number}
+                        slots={attachmentSlots}
+                        attachments={attachments}
+                        role="vendor"
+                        currentUserId={currentUserId}
+                    />
                     </div>
                     <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
                         <div>

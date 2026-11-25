@@ -2,6 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import CategoryOrderDetails, {
     type ExtraField,
 } from '@/components/orders/category-order-details';
+import type { AttachmentSlot } from '@/components/orders/order-attachment-uploader';
 import { show as serviceShow } from '@/actions/App/Http/Controllers/Public/ServiceController';
 import { store as createOrder } from '@/actions/App/Http/Controllers/Customer/OrderController';
 import type { ServicePackage } from '@/types/marketplace';
@@ -18,6 +19,13 @@ type Draft = {
     quantity: number;
     notes?: string;
     extras?: Record<string, string>;
+    attachments?: Array<{
+        slot_key: string;
+        original_name: string;
+        mime_type: string;
+        size_bytes: number;
+        preview_url?: string;
+    }>;
 };
 
 type Service = {
@@ -39,6 +47,7 @@ export default function OrderReview({
     categoryName,
     quantityLabel,
     extraFields = [],
+    attachmentSlots = [],
 }: {
     draft: Draft;
     service: Service;
@@ -49,6 +58,7 @@ export default function OrderReview({
     categoryName?: string | null;
     quantityLabel?: string;
     extraFields?: ExtraField[];
+    attachmentSlots?: AttachmentSlot[];
 }) {
     const form = useForm<{
         idempotency_key: string;
@@ -173,6 +183,34 @@ export default function OrderReview({
                         extras={draft.extras}
                         extraFields={extraFields}
                     />
+                    {draft.attachments && draft.attachments.length > 0 && (
+                        <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
+                            <h2 className="text-base font-semibold">
+                                Lampiran pendukung ({draft.attachments.length})
+                            </h2>
+                            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                                {draft.attachments.map((file, idx) => {
+                                    const slotLabel =
+                                        attachmentSlots.find(
+                                            (s) => s.key === file.slot_key,
+                                        )?.label ?? file.slot_key;
+                                    return (
+                                        <li
+                                            key={`${file.slot_key}-${idx}`}
+                                            className="rounded-lg border border-border/70 bg-secondary/25 px-3 py-2 text-xs"
+                                        >
+                                            <p className="font-semibold text-muted-foreground">
+                                                {slotLabel}
+                                            </p>
+                                            <p className="mt-0.5 truncate font-medium">
+                                                {file.original_name}
+                                            </p>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        </div>
+                    )}
                 </section>
 
                 <aside className="h-fit space-y-5 rounded-2xl border border-border/70 bg-card p-5 shadow-sm lg:sticky lg:top-16">

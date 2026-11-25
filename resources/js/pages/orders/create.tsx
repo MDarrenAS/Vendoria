@@ -1,7 +1,11 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import InputError from '@/components/input-error';
 import type { ExtraField } from '@/components/orders/category-order-details';
+import OrderAttachmentUploader, {
+    type AttachmentSlot,
+    type DraftAttachment,
+} from '@/components/orders/order-attachment-uploader';
 import { show as serviceShow } from '@/actions/App/Http/Controllers/Public/ServiceController';
 import { store as saveOrderDraft } from '@/actions/App/Http/Controllers/Customer/OrderDraftController';
 import type { ServicePackage } from '@/types/marketplace';
@@ -32,6 +36,7 @@ type OrderDraftData = {
     quantity: number;
     notes: string;
     extras: Record<string, string>;
+    attachment_ids: string[];
 };
 
 export default function CreateOrder({
@@ -42,6 +47,8 @@ export default function CreateOrder({
     minimumDate,
     extraFields,
     quantityLabel,
+    attachmentSlots = [],
+    initialDraftAttachments = [],
 }: {
     service: Service;
     selectedPackageId?: number;
@@ -50,7 +57,16 @@ export default function CreateOrder({
     minimumDate: string;
     extraFields: ExtraField[];
     quantityLabel?: string;
+    attachmentSlots?: AttachmentSlot[];
+    initialDraftAttachments?: DraftAttachment[];
 }) {
+    const [draftAttachments, setDraftAttachments] = useState<DraftAttachment[]>(
+        initialDraftAttachments,
+    );
+    const [missingSlotErrors, setMissingSlotErrors] = useState<
+        Record<string, string>
+    >({});
+
     const form = useForm<OrderDraftData>({
         service_id: service.id,
         package_id: selectedPackageId ?? null,
@@ -63,6 +79,7 @@ export default function CreateOrder({
         quantity: service.min_quantity,
         notes: '',
         extras: {},
+        attachment_ids: initialDraftAttachments.map((item) => item.temp_id),
     });
 
     const selectedPackage = service.packages.find(
@@ -76,6 +93,23 @@ export default function CreateOrder({
 
     function submit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
+
+        const missing: Record<string, string> = {};
+        for (const slot of attachmentSlots) {
+            if (
+                slot.required &&
+                !draftAttachments.some((item) => item.slot_key === slot.key)
+            ) {
+                missing[`attachments.${slot.key}`] = `${slot.label} wajib diunggah.`;
+            }
+        }
+
+        if (Object.keys(missing).length > 0) {
+            setMissingSlotErrors(missing);
+            return;
+        }
+
+        setMissingSlotErrors({});
         form.post(saveOrderDraft.url(), { preserveScroll: true });
     }
 
@@ -460,6 +494,27 @@ export default function CreateOrder({
                             />
                             <InputError message={form.errors.notes} />
                         </div>
+
+                        <OrderAttachmentUploader
+                            serviceId={service.id}
+                            slots={attachmentSlots}
+                            attachments={draftAttachments}
+                            onChange={(next) => {
+                                setDraftAttachments(next);
+                                form.setData(
+                                    'attachment_ids',
+                                    next.map((item) => item.temp_id),
+                                );
+                                setMissingSlotErrors({});
+                            }}
+                            errors={{ ...form.errors, ...missingSlotErrors }}
+                        />
+
+                        {Object.keys(missingSlotErrors).length > 0 && (
+                            <p role="alert" className="text-sm font-medium text-destructive">
+                                Lengkapi seluruh lampiran wajib sebelum mengajukan pesanan.
+                            </p>
+                        )}
 
                         <button
                             type="submit"

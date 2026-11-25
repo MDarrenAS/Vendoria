@@ -12,8 +12,10 @@ use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\Customer\CancelOrderRequest;
 use App\Http\Requests\Customer\ConfirmOrderPaymentRequest;
 use App\Models\Order;
+use App\Models\OrderAttachment;
 use App\Models\OrderMessage;
 use App\Support\AdminFee;
+use App\Support\OrderAttachments;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -63,6 +65,7 @@ class OrderController extends Controller
             'service.category:id,name,slug',
             'statusHistories.changedBy:id,name',
             'review:id,order_id,rating,comment,created_at',
+            'attachments',
         ]);
 
         $initialMessages = $order->messages()
@@ -83,7 +86,12 @@ class OrderController extends Controller
         $categorySlug = $order->service?->category?->slug;
         $categoryName = $order->service?->category?->name;
 
-        $order->makeHidden(['id', 'customer_id', 'vendor_profile_id', 'service_id', 'package_id', 'service']);
+        $attachments = $order->attachments
+            ->map(fn (OrderAttachment $attachment): array => OrderAttachments::serialize($attachment, $order))
+            ->values()
+            ->all();
+
+        $order->makeHidden(['id', 'customer_id', 'vendor_profile_id', 'service_id', 'package_id', 'service', 'attachments']);
         $order->vendorProfile->makeHidden(['id', 'user_id', 'whatsapp_number', 'logo_path', 'cover_path']);
         $order->statusHistories->each(fn ($history) => $history->makeHidden(['order_id', 'changed_by']));
         $order->review?->makeHidden(['order_id', 'customer_id', 'vendor_profile_id', 'service_id']);
@@ -102,6 +110,8 @@ class OrderController extends Controller
             'categoryName' => $categoryName,
             'quantityLabel' => config('vendoria.category_quantity_labels.'.$categorySlug, 'Jumlah paket'),
             'extraFields' => config('vendoria.category_extra_fields.'.$categorySlug, []),
+            'attachmentSlots' => OrderAttachments::slotsForCategory($categorySlug),
+            'attachments' => $attachments,
         ]);
     }
 
@@ -154,7 +164,7 @@ class OrderController extends Controller
         }
 
         $order = $createOrder->handle($request->user(), $draft);
-        $request->session()->forget('draft_order');
+        $request->session()->forget(['draft_order', 'draft_attachments']);
 
         return redirect()->route('orders.index')
             ->with('success', 'Pesanan '.$order->order_number.' berhasil diajukan.');

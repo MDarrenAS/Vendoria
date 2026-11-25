@@ -96,4 +96,9 @@ class Order extends Model
     {
         return $this->hasOne(Review::class);
     }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(OrderAttachment::class)->orderBy('created_at');
+    }
 }

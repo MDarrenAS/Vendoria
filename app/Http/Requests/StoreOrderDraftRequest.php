@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Service;
+use App\Support\OrderAttachments;
 use App\Support\WhatsApp;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -29,6 +30,8 @@ class StoreOrderDraftRequest extends FormRequest
             'notes' => ['nullable', 'string', 'max:2000'],
             'extras' => ['nullable', 'array', 'max:20'],
             'extras.*' => ['nullable', 'string', 'max:1000'],
+            'attachment_ids' => ['nullable', 'array', 'max:30'],
+            'attachment_ids.*' => ['string', 'uuid'],
         ];
     }
 
@@ -98,6 +101,17 @@ class StoreOrderDraftRequest extends FormRequest
 
                 if ($service->vendorProfile->blockedDates()->whereDate('date', $this->input('event_date'))->exists()) {
                     $validator->errors()->add('event_date', 'Tanggal tersebut tidak tersedia untuk vendor ini.');
+                }
+
+                $attachmentIds = $this->input('attachment_ids', []);
+                $draftAttachments = collect($this->session()->get('draft_attachments', []))
+                    ->where('service_id', $service->id)
+                    ->filter(fn (array $item): bool => in_array($item['temp_id'], $attachmentIds, true));
+
+                foreach (OrderAttachments::slotsForCategory($service->category?->slug) as $slot) {
+                    if (($slot['required'] ?? false) && $draftAttachments->where('slot_key', $slot['key'])->isEmpty()) {
+                        $validator->errors()->add('attachments.'.$slot['key'], $slot['label'].' wajib diunggah.');
+                    }
                 }
             },
         ];

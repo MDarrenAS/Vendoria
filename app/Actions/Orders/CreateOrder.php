@@ -117,6 +117,18 @@ class CreateOrder
                 'note' => 'Pesanan diajukan.',
             ]);
 
+            foreach ($draft['attachments'] ?? [] as $attachment) {
+                $order->attachments()->create([
+                    'slot_key' => $attachment['slot_key'],
+                    'original_name' => $attachment['original_name'],
+                    'stored_path' => $attachment['stored_path'],
+                    'mime_type' => $attachment['mime_type'],
+                    'size_bytes' => $attachment['size_bytes'],
+                    'uploaded_by' => $customer->id,
+                    'is_post_submission' => false,
+                ]);
+            }
+
             $service->vendorProfile->user->notify(new OrderCreatedNotification($order));
 
             return $order;

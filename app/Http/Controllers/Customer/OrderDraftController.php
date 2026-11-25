@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOrderDraftRequest;
 use App\Models\Service;
+use App\Support\OrderAttachments;
 use App\Support\Rupiah;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -49,6 +50,19 @@ class OrderDraftController extends Controller
 
         $service->vendorProfile->makeHidden('whatsapp_number');
 
+        $initialDraftAttachments = collect($request->session()->get('draft_attachments', []))
+            ->where('service_id', $service->id)
+            ->map(fn (array $item): array => [
+                'temp_id' => $item['temp_id'],
+                'slot_key' => $item['slot_key'],
+                'original_name' => $item['original_name'],
+                'mime_type' => $item['mime_type'],
+                'size_bytes' => $item['size_bytes'],
+                'preview_url' => route('order.draft.attachments.preview', $item['temp_id'], absolute: false),
+            ])
+            ->values()
+            ->all();
+
         return Inertia::render('orders/create', [
             'service' => $service,
             'selectedPackageId' => $selectedPackage?->id,
@@ -57,6 +71,8 @@ class OrderDraftController extends Controller
             'minimumDate' => today()->addDay()->toDateString(),
             'extraFields' => config('vendoria.category_extra_fields.'.$service->category->slug, []),
             'quantityLabel' => config('vendoria.category_quantity_labels.'.$service->category->slug, 'Jumlah'),
+            'attachmentSlots' => OrderAttachments::slotsForCategory($service->category->slug),
+            'initialDraftAttachments' => $initialDraftAttachments,
             'currencyHint' => Rupiah::format($selectedPackage?->price ?? $service->base_price),
         ]);
     }
@@ -69,6 +85,23 @@ class OrderDraftController extends Controller
         }
 
         $draft = $request->validated();
+        $attachmentIds = $draft['attachment_ids'] ?? [];
+        unset($draft['attachment_ids']);
+
+        $draft['attachments'] = collect($request->session()->get('draft_attachments', []))
+            ->where('service_id', (int) $draft['service_id'])
+            ->filter(fn (array $item): bool => in_array($item['temp_id'], $attachmentIds, true))
+            ->map(fn (array $item): array => [
+                'slot_key' => $item['slot_key'],
+                'original_name' => $item['original_name'],
+                'stored_path' => $item['stored_path'],
+                'mime_type' => $item['mime_type'],
+                'size_bytes' => $item['size_bytes'],
+                'preview_url' => route('order.draft.attachments.preview', $item['temp_id'], absolute: false),
+            ])
+            ->values()
+            ->all();
+
         $draft['idempotency_key'] = (string) Str::uuid();
         $draft['created_at'] = now()->toIso8601String();
         $request->session()->put('draft_order', $draft);
@@ -149,6 +182,7 @@ class OrderDraftController extends Controller
             'categoryName' => $service->category?->name,
             'quantityLabel' => config('vendoria.category_quantity_labels.'.$categorySlug, 'Jumlah'),
             'extraFields' => config('vendoria.category_extra_fields.'.$categorySlug, []),
+            'attachmentSlots' => OrderAttachments::slotsForCategory($categorySlug),
         ]);
     }
 }
