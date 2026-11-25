@@ -29,6 +29,12 @@ class NotificationController extends Controller
             $userNotification->markAsRead();
         }
 
+        $redirectTo = $request->input('redirect_to');
+
+        if (is_string($redirectTo) && str_starts_with($redirectTo, '/') && ! str_starts_with($redirectTo, '//')) {
+            return redirect($redirectTo);
+        }
+
         return back();
     }
 

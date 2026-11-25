@@ -163,7 +163,7 @@ read.patch = (args: { notification: string | number } | [notification: string | 
     read.form = readForm
 /**
 * @see \App\Http\Controllers\Customer\NotificationController::readAll
- * @see app/Http/Controllers/Customer/NotificationController.php:35
+ * @see app/Http/Controllers/Customer/NotificationController.php:41
  * @route '/notifications/read-all'
  */
 export const readAll = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -178,7 +178,7 @@ readAll.definition = {
 
 /**
 * @see \App\Http\Controllers\Customer\NotificationController::readAll
- * @see app/Http/Controllers/Customer/NotificationController.php:35
+ * @see app/Http/Controllers/Customer/NotificationController.php:41
  * @route '/notifications/read-all'
  */
 readAll.url = (options?: RouteQueryOptions) => {
@@ -187,7 +187,7 @@ readAll.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Customer\NotificationController::readAll
- * @see app/Http/Controllers/Customer/NotificationController.php:35
+ * @see app/Http/Controllers/Customer/NotificationController.php:41
  * @route '/notifications/read-all'
  */
 readAll.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -197,7 +197,7 @@ readAll.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Customer\NotificationController::readAll
- * @see app/Http/Controllers/Customer/NotificationController.php:35
+ * @see app/Http/Controllers/Customer/NotificationController.php:41
  * @route '/notifications/read-all'
  */
     const readAllForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -207,7 +207,7 @@ readAll.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Customer\NotificationController::readAll
- * @see app/Http/Controllers/Customer/NotificationController.php:35
+ * @see app/Http/Controllers/Customer/NotificationController.php:41
  * @route '/notifications/read-all'
  */
         readAllForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
