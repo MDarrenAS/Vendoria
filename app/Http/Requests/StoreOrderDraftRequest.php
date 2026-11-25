@@ -69,13 +69,30 @@ class StoreOrderDraftRequest extends FormRequest
                     $validator->errors()->add('package_id', 'Paket yang dipilih tidak tersedia untuk layanan ini.');
                 }
 
-                $allowedExtraFields = collect(config('vendoria.category_extra_fields.'.$service->category->slug, []))
-                    ->pluck('name')
-                    ->all();
+                $categoryExtraFields = collect(config('vendoria.category_extra_fields.'.$service->category->slug, []))
+                    ->keyBy('name');
 
-                foreach (array_keys($this->input('extras', [])) as $extraField) {
-                    if (! in_array($extraField, $allowedExtraFields, true)) {
+                foreach ($this->input('extras', []) as $extraField => $value) {
+                    $definition = $categoryExtraFields->get($extraField);
+
+                    if ($definition === null) {
                         $validator->errors()->add('extras.'.$extraField, 'Isian tambahan tidak sesuai dengan kategori layanan.');
+
+                        continue;
+                    }
+
+                    if ($value === null || $value === '') {
+                        continue;
+                    }
+
+                    if (($definition['type'] ?? null) === 'select'
+                        && isset($definition['options'])
+                        && ! in_array($value, $definition['options'], true)) {
+                        $validator->errors()->add('extras.'.$extraField, 'Pilihan '.$definition['label'].' tidak valid.');
+                    }
+
+                    if (($definition['type'] ?? null) === 'number' && ! is_numeric($value)) {
+                        $validator->errors()->add('extras.'.$extraField, $definition['label'].' harus berupa angka.');
                     }
                 }
 

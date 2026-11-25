@@ -1,4 +1,7 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import CategoryOrderDetails, {
+    type ExtraField,
+} from '@/components/orders/category-order-details';
 import { show as serviceShow } from '@/actions/App/Http/Controllers/Public/ServiceController';
 import { store as createOrder } from '@/actions/App/Http/Controllers/Customer/OrderController';
 import type { ServicePackage } from '@/types/marketplace';
@@ -32,12 +35,20 @@ export default function OrderReview({
     package: servicePackage,
     unitPrice,
     priceEstimate,
+    categorySlug,
+    categoryName,
+    quantityLabel,
+    extraFields = [],
 }: {
     draft: Draft;
     service: Service;
     package: ServicePackage | null;
     unitPrice: string;
     priceEstimate: string;
+    categorySlug?: string | null;
+    categoryName?: string | null;
+    quantityLabel?: string;
+    extraFields?: ExtraField[];
 }) {
     const form = useForm<{
         idempotency_key: string;
@@ -138,7 +149,7 @@ export default function OrderReview({
                         </div>
                         <div>
                             <dt className="text-sm text-muted-foreground">
-                                Jumlah
+                                {quantityLabel ?? 'Jumlah'}
                             </dt>
                             <dd className="mt-1 font-medium">
                                 {draft.quantity}{' '}
@@ -156,6 +167,12 @@ export default function OrderReview({
                             </div>
                         )}
                     </dl>
+                    <CategoryOrderDetails
+                        categorySlug={categorySlug}
+                        categoryName={categoryName}
+                        extras={draft.extras}
+                        extraFields={extraFields}
+                    />
                 </section>
 
                 <aside className="h-fit space-y-5 rounded-2xl border border-border/70 bg-card p-5 shadow-sm lg:sticky lg:top-16">

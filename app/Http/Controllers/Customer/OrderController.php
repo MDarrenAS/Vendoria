@@ -59,6 +59,8 @@ class OrderController extends Controller
         Gate::authorize('view', $order);
         $order->load([
             'vendorProfile:id,business_name,slug,city',
+            'service:id,category_id,price_unit',
+            'service.category:id,name,slug',
             'statusHistories.changedBy:id,name',
             'review:id,order_id,rating,comment,created_at',
         ]);
@@ -78,7 +80,10 @@ class OrderController extends Controller
                 'sender_name' => $message->sender->name,
             ]);
 
-        $order->makeHidden(['id', 'customer_id', 'vendor_profile_id', 'service_id', 'package_id']);
+        $categorySlug = $order->service?->category?->slug;
+        $categoryName = $order->service?->category?->name;
+
+        $order->makeHidden(['id', 'customer_id', 'vendor_profile_id', 'service_id', 'package_id', 'service']);
         $order->vendorProfile->makeHidden(['id', 'user_id', 'whatsapp_number', 'logo_path', 'cover_path']);
         $order->statusHistories->each(fn ($history) => $history->makeHidden(['order_id', 'changed_by']));
         $order->review?->makeHidden(['order_id', 'customer_id', 'vendor_profile_id', 'service_id']);
@@ -93,6 +98,10 @@ class OrderController extends Controller
                 OrderStatus::Cancelled,
             ], true),
             'adminFeeLabel' => AdminFee::ratePercentLabel(),
+            'categorySlug' => $categorySlug,
+            'categoryName' => $categoryName,
+            'quantityLabel' => config('vendoria.category_quantity_labels.'.$categorySlug, 'Jumlah paket'),
+            'extraFields' => config('vendoria.category_extra_fields.'.$categorySlug, []),
         ]);
     }
 

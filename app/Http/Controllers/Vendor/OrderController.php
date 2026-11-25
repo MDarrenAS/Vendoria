@@ -51,7 +51,13 @@ class OrderController extends Controller
     public function show(Order $order): Response
     {
         Gate::authorize('view', $order);
-        $order->load(['customer:id,name', 'vendorProfile:id,business_name', 'statusHistories.changedBy:id,name']);
+        $order->load([
+            'customer:id,name',
+            'vendorProfile:id,business_name',
+            'service:id,category_id,price_unit',
+            'service.category:id,name,slug',
+            'statusHistories.changedBy:id,name',
+        ]);
 
         $dateConflict = Order::query()
             ->where('vendor_profile_id', $order->vendor_profile_id)
@@ -75,7 +81,10 @@ class OrderController extends Controller
                 'sender_name' => $message->sender->name,
             ]);
 
-        $order->makeHidden(['id', 'idempotency_key', 'customer_id', 'vendor_profile_id', 'service_id', 'package_id']);
+        $categorySlug = $order->service?->category?->slug;
+        $categoryName = $order->service?->category?->name;
+
+        $order->makeHidden(['id', 'idempotency_key', 'customer_id', 'vendor_profile_id', 'service_id', 'package_id', 'service']);
         if ($order->payment_status !== 'paid') {
             $order->makeHidden('contact_phone');
         }
@@ -96,6 +105,10 @@ class OrderController extends Controller
                 fn (OrderStatus $status): array => ['value' => $status->value, 'label' => $status->label()],
                 OrderStatus::cases(),
             ),
+            'categorySlug' => $categorySlug,
+            'categoryName' => $categoryName,
+            'quantityLabel' => config('vendoria.category_quantity_labels.'.$categorySlug, 'Jumlah'),
+            'extraFields' => config('vendoria.category_extra_fields.'.$categorySlug, []),
         ]);
     }
 

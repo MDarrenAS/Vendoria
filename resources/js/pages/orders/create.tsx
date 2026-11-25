@@ -1,6 +1,7 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import { useMemo } from 'react';
 import InputError from '@/components/input-error';
+import type { ExtraField } from '@/components/orders/category-order-details';
 import { show as serviceShow } from '@/actions/App/Http/Controllers/Public/ServiceController';
 import { store as saveOrderDraft } from '@/actions/App/Http/Controllers/Customer/OrderDraftController';
 import type { ServicePackage } from '@/types/marketplace';
@@ -15,14 +16,8 @@ type Service = {
     min_quantity: number;
     max_quantity: number | null;
     vendor_profile: { business_name: string; slug: string; city: string };
-    category: { name: string };
+    category: { name: string; slug: string };
     packages: ServicePackage[];
-};
-
-type ExtraField = {
-    name: string;
-    label: string;
-    type: 'text' | 'textarea' | 'number';
 };
 
 type OrderDraftData = {
@@ -46,6 +41,7 @@ export default function CreateOrder({
     contactPhone,
     minimumDate,
     extraFields,
+    quantityLabel,
 }: {
     service: Service;
     selectedPackageId?: number;
@@ -53,6 +49,7 @@ export default function CreateOrder({
     contactPhone: string;
     minimumDate: string;
     extraFields: ExtraField[];
+    quantityLabel?: string;
 }) {
     const form = useForm<OrderDraftData>({
         service_id: service.id,
@@ -308,7 +305,8 @@ export default function CreateOrder({
                                 htmlFor="quantity"
                                 className="text-sm font-medium"
                             >
-                                Jumlah ({priceUnitLabel(service.price_unit)})
+                                {quantityLabel ??
+                                    `Jumlah (${priceUnitLabel(service.price_unit)})`}
                             </label>
                             <input
                                 id="quantity"
@@ -335,60 +333,109 @@ export default function CreateOrder({
                             <InputError message={form.errors.quantity} />
                         </div>
 
-                        {extraFields.map((field) => (
-                            <div key={field.name} className="grid gap-2">
-                                <label
-                                    htmlFor={`extra-${field.name}`}
-                                    className="text-sm font-medium"
-                                >
-                                    {field.label}
-                                </label>
-                                {field.type === 'textarea' ? (
-                                    <textarea
-                                        id={`extra-${field.name}`}
-                                        value={
-                                            form.data.extras[field.name] ?? ''
-                                        }
-                                        onChange={(event) =>
-                                            form.setData('extras', {
-                                                ...form.data.extras,
-                                                [field.name]:
-                                                    event.target.value,
-                                            })
-                                        }
-                                        maxLength={1000}
-                                        rows={3}
-                                        className="rounded-lg border border-border/70 bg-background px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-primary/15"
-                                    />
-                                ) : (
-                                    <input
-                                        id={`extra-${field.name}`}
-                                        type={field.type}
-                                        value={
-                                            form.data.extras[field.name] ?? ''
-                                        }
-                                        onChange={(event) =>
-                                            form.setData('extras', {
-                                                ...form.data.extras,
-                                                [field.name]:
-                                                    event.target.value,
-                                            })
-                                        }
-                                        maxLength={
-                                            field.type === 'text'
-                                                ? 1000
-                                                : undefined
-                                        }
-                                        className="h-11 rounded-lg border border-border/70 bg-background px-3 outline-none focus-visible:ring-2 focus-visible:ring-primary/15"
-                                    />
-                                )}
-                                <InputError
-                                    message={
-                                        form.errors[`extras.${field.name}`]
-                                    }
-                                />
+                        {extraFields.length > 0 && (
+                            <div className="space-y-4 rounded-xl border border-border/70 bg-secondary/25 p-4">
+                                <div>
+                                    <p className="text-xs font-semibold tracking-wide text-primary uppercase">
+                                        Spesifikasi {service.category.name}
+                                    </p>
+                                    <p className="mt-0.5 text-xs text-muted-foreground">
+                                        Informasi khusus agar vendor dapat menyiapkan layanan sesuai kebutuhan Anda.
+                                    </p>
+                                </div>
+
+                                {extraFields.map((field) => (
+                                    <div key={field.name} className="grid gap-2">
+                                        <label
+                                            htmlFor={`extra-${field.name}`}
+                                            className="text-sm font-medium"
+                                        >
+                                            {field.label}
+                                        </label>
+                                        {field.type === 'textarea' ? (
+                                            <textarea
+                                                id={`extra-${field.name}`}
+                                                value={
+                                                    form.data.extras[field.name] ??
+                                                    ''
+                                                }
+                                                onChange={(event) =>
+                                                    form.setData('extras', {
+                                                        ...form.data.extras,
+                                                        [field.name]:
+                                                            event.target.value,
+                                                    })
+                                                }
+                                                placeholder={field.placeholder}
+                                                maxLength={1000}
+                                                rows={3}
+                                                className="rounded-lg border border-border/70 bg-background px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-primary/15"
+                                            />
+                                        ) : field.type === 'select' ? (
+                                            <select
+                                                id={`extra-${field.name}`}
+                                                value={
+                                                    form.data.extras[field.name] ??
+                                                    ''
+                                                }
+                                                onChange={(event) =>
+                                                    form.setData('extras', {
+                                                        ...form.data.extras,
+                                                        [field.name]:
+                                                            event.target.value,
+                                                    })
+                                                }
+                                                className="h-11 rounded-lg border border-border/70 bg-background px-3 outline-none focus-visible:ring-2 focus-visible:ring-primary/15"
+                                            >
+                                                <option value="">
+                                                    Pilih {field.label.toLowerCase()}
+                                                </option>
+                                                {(field.options ?? []).map(
+                                                    (option) => (
+                                                        <option
+                                                            key={option}
+                                                            value={option}
+                                                        >
+                                                            {option}
+                                                        </option>
+                                                    ),
+                                                )}
+                                            </select>
+                                        ) : (
+                                            <input
+                                                id={`extra-${field.name}`}
+                                                type={field.type}
+                                                value={
+                                                    form.data.extras[field.name] ??
+                                                    ''
+                                                }
+                                                onChange={(event) =>
+                                                    form.setData('extras', {
+                                                        ...form.data.extras,
+                                                        [field.name]:
+                                                            event.target.value,
+                                                    })
+                                                }
+                                                placeholder={field.placeholder}
+                                                maxLength={
+                                                    field.type === 'text'
+                                                        ? 1000
+                                                        : undefined
+                                                }
+                                                className="h-11 rounded-lg border border-border/70 bg-background px-3 outline-none focus-visible:ring-2 focus-visible:ring-primary/15"
+                                            />
+                                        )}
+                                        <InputError
+                                            message={
+                                                form.errors[
+                                                    `extras.${field.name}`
+                                                ]
+                                            }
+                                        />
+                                    </div>
+                                ))}
                             </div>
-                        ))}
+                        )}
 
                         <div className="grid gap-2">
                             <label

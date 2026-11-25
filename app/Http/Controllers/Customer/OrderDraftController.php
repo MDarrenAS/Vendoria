@@ -56,6 +56,7 @@ class OrderDraftController extends Controller
             'contactPhone' => $request->user()?->phone ?? '',
             'minimumDate' => today()->addDay()->toDateString(),
             'extraFields' => config('vendoria.category_extra_fields.'.$service->category->slug, []),
+            'quantityLabel' => config('vendoria.category_quantity_labels.'.$service->category->slug, 'Jumlah'),
             'currencyHint' => Rupiah::format($selectedPackage?->price ?? $service->base_price),
         ]);
     }
@@ -112,6 +113,7 @@ class OrderDraftController extends Controller
             ->whereHas('vendorProfile', fn ($query) => $query->where('is_active', true))
             ->with([
                 'vendorProfile:id,business_name,slug,city',
+                'category:id,name,slug',
                 'packages' => fn ($query) => $query->where('is_active', true),
             ])
             ->find($draft['service_id']);
@@ -135,12 +137,18 @@ class OrderDraftController extends Controller
         $unitPrice = $selectedPackage?->price ?? $service->base_price;
         $priceEstimate = number_format((int) round((float) $unitPrice * 100) * (int) $draft['quantity'] / 100, 2, '.', '');
 
+        $categorySlug = $service->category?->slug;
+
         return Inertia::render('orders/review', [
             'draft' => $draft,
             'service' => $service,
             'package' => $selectedPackage,
             'unitPrice' => (string) $unitPrice,
             'priceEstimate' => $priceEstimate,
+            'categorySlug' => $categorySlug,
+            'categoryName' => $service->category?->name,
+            'quantityLabel' => config('vendoria.category_quantity_labels.'.$categorySlug, 'Jumlah'),
+            'extraFields' => config('vendoria.category_extra_fields.'.$categorySlug, []),
         ]);
     }
 }

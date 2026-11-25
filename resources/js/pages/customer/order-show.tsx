@@ -14,6 +14,9 @@ import {
     X,
 } from 'lucide-react';
 import { store as storeReview } from '@/actions/App/Http/Controllers/Customer/ReviewController';
+import CategoryOrderDetails, {
+    type ExtraField,
+} from '@/components/orders/category-order-details';
 import OrderChat, { type OrderChatMessage } from '@/components/order-chat';
 import OrderLiveUpdates from '@/components/order-live-updates';
 import {
@@ -118,12 +121,20 @@ export default function CustomerOrderShow({
     currentUserId,
     canSendMessages,
     adminFeeLabel = '3%',
+    categorySlug,
+    categoryName,
+    quantityLabel,
+    extraFields = [],
 }: {
     order: Order;
     initialMessages: OrderChatMessage[];
     currentUserId: number;
     canSendMessages: boolean;
     adminFeeLabel?: string;
+    categorySlug?: string | null;
+    categoryName?: string | null;
+    quantityLabel?: string;
+    extraFields?: ExtraField[];
 }) {
     const serviceAmount = order.price_final ?? order.price_estimate;
     const totalPayable = order.total_payable;
@@ -262,19 +273,9 @@ export default function CustomerOrderShow({
                                 value={`${order.contact_name} · ${order.contact_phone}`}
                             />
                             <DetailRow
-                                label="Jumlah paket"
+                                label={quantityLabel ?? 'Jumlah paket'}
                                 value={`${order.quantity} Paket`}
                             />
-                            {order.extras &&
-                                Object.entries(order.extras).map(
-                                    ([label, value]) => (
-                                        <DetailRow
-                                            key={label}
-                                            label={label}
-                                            value={value}
-                                        />
-                                    ),
-                                )}
                             {order.notes && (
                                 <div className="sm:col-span-2">
                                     <DetailRow
@@ -284,6 +285,12 @@ export default function CustomerOrderShow({
                                 </div>
                             )}
                         </dl>
+                        <CategoryOrderDetails
+                            categorySlug={categorySlug}
+                            categoryName={categoryName}
+                            extras={order.extras}
+                            extraFields={extraFields}
+                        />
                     </div>
                     <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
                         <div className="flex items-center gap-3 border-b border-border/70 pb-4">

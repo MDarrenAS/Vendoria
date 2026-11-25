@@ -79,7 +79,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     create.form = createForm
 /**
 * @see \App\Http\Controllers\Customer\OrderDraftController::store
- * @see app/Http/Controllers/Customer/OrderDraftController.php:63
+ * @see app/Http/Controllers/Customer/OrderDraftController.php:64
  * @route '/order/draft'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Customer\OrderDraftController::store
- * @see app/Http/Controllers/Customer/OrderDraftController.php:63
+ * @see app/Http/Controllers/Customer/OrderDraftController.php:64
  * @route '/order/draft'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Customer\OrderDraftController::store
- * @see app/Http/Controllers/Customer/OrderDraftController.php:63
+ * @see app/Http/Controllers/Customer/OrderDraftController.php:64
  * @route '/order/draft'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Customer\OrderDraftController::store
- * @see app/Http/Controllers/Customer/OrderDraftController.php:63
+ * @see app/Http/Controllers/Customer/OrderDraftController.php:64
  * @route '/order/draft'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Customer\OrderDraftController::store
- * @see app/Http/Controllers/Customer/OrderDraftController.php:63
+ * @see app/Http/Controllers/Customer/OrderDraftController.php:64
  * @route '/order/draft'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -134,7 +134,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\Customer\OrderDraftController::review
- * @see app/Http/Controllers/Customer/OrderDraftController.php:85
+ * @see app/Http/Controllers/Customer/OrderDraftController.php:86
  * @route '/order/review'
  */
 export const review = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -149,7 +149,7 @@ review.definition = {
 
 /**
 * @see \App\Http\Controllers\Customer\OrderDraftController::review
- * @see app/Http/Controllers/Customer/OrderDraftController.php:85
+ * @see app/Http/Controllers/Customer/OrderDraftController.php:86
  * @route '/order/review'
  */
 review.url = (options?: RouteQueryOptions) => {
@@ -158,7 +158,7 @@ review.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Customer\OrderDraftController::review
- * @see app/Http/Controllers/Customer/OrderDraftController.php:85
+ * @see app/Http/Controllers/Customer/OrderDraftController.php:86
  * @route '/order/review'
  */
 review.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -167,7 +167,7 @@ review.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Customer\OrderDraftController::review
- * @see app/Http/Controllers/Customer/OrderDraftController.php:85
+ * @see app/Http/Controllers/Customer/OrderDraftController.php:86
  * @route '/order/review'
  */
 review.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -177,7 +177,7 @@ review.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Customer\OrderDraftController::review
- * @see app/Http/Controllers/Customer/OrderDraftController.php:85
+ * @see app/Http/Controllers/Customer/OrderDraftController.php:86
  * @route '/order/review'
  */
     const reviewForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -187,7 +187,7 @@ review.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Customer\OrderDraftController::review
- * @see app/Http/Controllers/Customer/OrderDraftController.php:85
+ * @see app/Http/Controllers/Customer/OrderDraftController.php:86
  * @route '/order/review'
  */
         reviewForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -196,7 +196,7 @@ review.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Customer\OrderDraftController::review
- * @see app/Http/Controllers/Customer/OrderDraftController.php:85
+ * @see app/Http/Controllers/Customer/OrderDraftController.php:86
  * @route '/order/review'
  */
         reviewForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

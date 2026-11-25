@@ -1,5 +1,8 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { CalendarDays, Clock3, MapPin, ShieldCheck } from 'lucide-react';
+import CategoryOrderDetails, {
+    type ExtraField,
+} from '@/components/orders/category-order-details';
 import OrderChat, { type OrderChatMessage } from '@/components/order-chat';
 import OrderLiveUpdates from '@/components/order-live-updates';
 import VendorShell from '@/components/vendor-shell';
@@ -49,6 +52,10 @@ type Props = {
     canSendMessages: boolean;
     statuses: Status[];
     dateConflict: boolean;
+    categorySlug?: string | null;
+    categoryName?: string | null;
+    quantityLabel?: string;
+    extraFields?: ExtraField[];
 };
 
 export default function VendorOrderShow({
@@ -58,6 +65,10 @@ export default function VendorOrderShow({
     canSendMessages,
     statuses,
     dateConflict,
+    categorySlug,
+    categoryName,
+    quantityLabel,
+    extraFields = [],
 }: Props) {
     const changeUrl = vendorOrders.status(order.order_number);
     const statusLabel =
@@ -151,20 +162,16 @@ export default function VendorOrderShow({
                                 }
                             />
                             <Row
-                                label="Jumlah"
+                                label={quantityLabel ?? 'Jumlah'}
                                 value={String(order.quantity)}
                             />
-                            {order.extras &&
-                                Object.entries(order.extras).map(
-                                    ([key, value]) => (
-                                        <Row
-                                            key={key}
-                                            label={key}
-                                            value={value}
-                                        />
-                                    ),
-                                )}
                         </dl>
+                        <CategoryOrderDetails
+                            categorySlug={categorySlug}
+                            categoryName={categoryName}
+                            extras={order.extras}
+                            extraFields={extraFields}
+                        />
                         {order.notes && (
                             <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50/60 p-3">
                                 <Row
